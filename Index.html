@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Holiday & Remote Work Calendar — Summer 2026</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      padding: 1rem;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 0.25rem;
+      font-size: 1.9rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .member-btn {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .member-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .member-btn.active {
+      border-width: 3px;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .member-btn[data-member="Matt"] { color: #2563eb; }
+    .member-btn[data-member="Matt"].active { background: #dbeafe; border-color: #2563eb; }
+
+    .member-btn[data-member="Cecilia"] { color: #9333ea; }
+    .member-btn[data-member="Cecilia"].active { background: #f3e8ff; border-color: #9333ea; }
+
+    .member-btn[data-member="Guillermo"] { color: #059669; }
+    .member-btn[data-member="Guillermo"].active { background: #d1fae5; border-color: #059669; }
+
+    .member-btn[data-member="Laura"] { color: #dc2626; }
+    .member-btn[data-member="Laura"].active { background: #fee2e2; border-color: #dc2626; }
+
+    .mode-selector {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .mode-btn {
+      padding: 0.55rem 1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .mode-btn.active {
+      border-color: #0f172a;
+      background: #e2e8f0;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .legend-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+    }
+
+    .legend-chip {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .legend-chip.striped {
+      background-size: 6px 6px;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #475569;
+      margin-bottom: 1rem;
+      min-height: 22px;
+    }
+
+    .months-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .month-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 1rem;
+    }
+
+    .month-title {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: #334155;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .day-cell {
+      min-height: 54px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 2px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.1s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .day-cell:hover { background: #f8fafc; }
+    .day-cell.empty { border: none; cursor: default; }
+    .day-cell.empty:hover { background: transparent; }
+
+    .day-num {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #475569;
+      line-height: 1;
+      margin-bottom: 2px;
+      padding-left: 2px;
+    }
+
+    .day-cell.weekend .day-num {
+      color: #94a3b8;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      flex: 1;
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    .chip {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .chip.striped { background-size: 5px 5px; }
+
+    .color-matt-holiday { background: #2563eb; }
+    .color-matt-remote {
+      background: repeating-linear-gradient(45deg, #2563eb, #2563eb 2px, #93c5fd 2px, #93c5fd 4px);
+      background-size: 5px 5px;
+    }
+
+    .color-cecilia-holiday { background: #9333ea; }
+    .color-cecilia-remote {
+      background: repeating-linear-gradient(45deg, #9333ea, #9333ea 2px, #d8b4fe 2px, #d8b4fe 4px);
+      background-size: 5px 5px;
+    }
+
+    .color-guillermo-holiday { background: #059669; }
+    .color-guillermo-remote {
+      background: repeating-linear-gradient(45deg, #059669, #059669 2px, #6ee7b7 2px, #6ee7b7 4px);
+      background-size: 5px 5px;
+    }
+
+    .color-laura-holiday { background: #dc2626; }
+    .color-laura-remote {
+      background: repeating-linear-gradient(45deg, #dc2626, #dc2626 2px, #fca5a5 2px, #fca5a5 4px);
+      background-size: 5px 5px;
+    }
+
+    @media (max-width: 640px) {
+      .day-cell { min-height: 46px; }
+      .chip { width: 12px; height: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Team Holiday & Remote Work Calendar — Summer 2026</h1>
+  <div class="subtitle">Click a day to mark holidays or remote work for the selected team member</div>
+
+  <div class="controls" id="memberControls"></div>
+
+
+  <div class="status" id="status"></div>
+  <div class="legend" id="legend"></div>
+  <div class="months-grid" id="monthsGrid"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://lzjhldscbvxnzalgojrm.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_w-uOgIUlY1PiUEvrCN5daA_--zWPxDI';
+
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const YEAR = 2026;
+  const members = ['Matt', 'Cecilia', 'Guillermo', 'Laura'];
+  const months = [
+    { name: 'July', monthIndex: 6 },
+    { name: 'August', monthIndex: 7 },
+    { name: 'September', monthIndex: 8 }
+  ];
+
+  let selectedMember = 'Matt';
+  let calendarData = {};
+
+  function setStatus(message, isError = false) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.style.color = isError ? '#dc2626' : '#475569';
+  }
+
+  function memberToClass(memberName, type) {
+    return `color-${memberName.toLowerCase()}-${type}`;
+  }
+
+  function normalizeRow(row) {
+    return {
+      ...row,
+      vacaciones: !!row.vacaciones && !row.remoto,
+      remoto: !!row.remoto && !row.vacaciones ? true : (!!row.remoto && !row.vacaciones)
+    };
+  }
+
+  function createLegend() {
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '';
+
+    members.forEach(member => {
+      const holiday = document.createElement('div');
+      holiday.className = 'legend-group';
+      holiday.innerHTML = `<span class="legend-chip ${memberToClass(member, 'holiday')}"></span><span>${member} Holiday</span>`;
+      legend.appendChild(holiday);
+
+      const remote = document.createElement('div');
+      remote.className = 'legend-group';
+      remote.innerHTML = `<span class="legend-chip striped ${memberToClass(member, 'remote')}"></span><span>${member} Remote</span>`;
+      legend.appendChild(remote);
+    });
+  }
+
+  function createMemberButtons() {
+    const controls = document.getElementById('memberControls');
+    controls.innerHTML = '';
+
+    members.forEach(member => {
+      const btn = document.createElement('button');
+      btn.className = 'member-btn' + (member === selectedMember ? ' active' : '');
+      btn.dataset.member = member;
+      btn.textContent = member;
+
+      btn.addEventListener('click', () => {
+        selectedMember = member;
+        createMemberButtons();
+        setStatus(`Selected member: ${selectedMember}`);
+      });
+
+      controls.appendChild(btn);
+    });
+  }
+
+  function formatDate(monthIndex, day) {
+    return `${YEAR}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
+  function getDayEntries(dateStr) {
+    return Object.values(calendarData).filter(item => item.fecha === dateStr);
+  }
+
+  function renderCalendar() {
+    const monthsGrid = document.getElementById('monthsGrid');
+    monthsGrid.innerHTML = '';
+    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    months.forEach(({ name, monthIndex }) => {
+      const card = document.createElement('div');
+      card.className = 'month-card';
+
+      const title = document.createElement('div');
+      title.className = 'month-title';
+      title.textContent = name;
+      card.appendChild(title);
+
+      const weekdays = document.createElement('div');
+      weekdays.className = 'weekdays';
+      weekdayNames.forEach(day => {
+        const el = document.createElement('div');
+        el.textContent = day;
+        weekdays.appendChild(el);
+      });
+      card.appendChild(weekdays);
+
+      const daysGrid = document.createElement('div');
+      daysGrid.className = 'days-grid';
+
+      const firstDay = new Date(YEAR, monthIndex, 1);
+      const daysInMonth = new Date(YEAR, monthIndex + 1, 0).getDate();
+      let startOffset = firstDay.getDay();
+      startOffset = startOffset === 0 ? 6 : startOffset - 1;
+
+      for (let i = 0; i < startOffset; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day-cell empty';
+        daysGrid.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = formatDate(monthIndex, day);
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+
+        const dayNum = document.createElement('div');
+        dayNum.className = 'day-num';
+        dayNum.textContent = day;
+        cell.appendChild(dayNum);
+
+        const chips = document.createElement('div');
+        chips.className = 'chips';
+
+        const entries = getDayEntries(dateStr);
+
+        entries.forEach(entry => {
+          // Nunca pintar ambos a la vez
+          if (entry.vacaciones) {
+            const chip = document.createElement('div');
+            chip.className = `chip ${memberToClass(entry.persona, 'holiday')}`;
+            chips.appendChild(chip);
+          } else if (entry.remoto) {
+            const chip = document.createElement('div');
+            chip.className = `chip striped ${memberToClass(entry.persona, 'remote')}`;
+            chips.appendChild(chip);
+          }
+        });
+
+        cell.appendChild(chips);
+
+        cell.addEventListener('click', async () => {
+          await saveDay(dateStr);
+        });
+
+        daysGrid.appendChild(cell);
+      }
+
+      card.appendChild(daysGrid);
+      monthsGrid.appendChild(card);
+    });
+  }
+
+  async function loadData() {
+    setStatus('Loading calendar from Supabase...');
+
+    const { data, error } = await sbClient
+      .from('Vacaciones')
+      .select('*');
+
+    if (error) {
+      console.error('Load error:', error);
+      setStatus('Error loading data: ' + error.message, true);
+      return;
+    }
+
+    calendarData = {};
+    data.forEach(row => {
+      const key = `${row.persona}__${row.fecha}`;
+
+      // Si viniera una fila rota con ambos true, priorizamos vacaciones
+      calendarData[key] = {
+        ...row,
+        vacaciones: !!row.vacaciones,
+        remoto: row.vacaciones ? false : !!row.remoto
+      };
+    });
+
+    renderCalendar();
+    setStatus('Calendar loaded from Supabase');
+  }
+
+  async function saveDay(dateStr) {
+    const key = `${selectedMember}__${dateStr}`;
+    const current = calendarData[key] || {
+      persona: selectedMember,
+      fecha: dateStr,
+      vacaciones: false,
+      remoto: false,
+      comentario: null
+    };
+
+    let updated;
+
+    // ciclo: vacío -> vacaciones -> remoto -> vacío
+    if (!current.vacaciones && !current.remoto) {
+      updated = {
+        ...current,
+        vacaciones: true,
+        remoto: false
+      };
+    } else if (current.vacaciones) {
+      updated = {
+        ...current,
+        vacaciones: false,
+        remoto: true
+      };
+    } else {
+      updated = {
+        ...current,
+        vacaciones: false,
+        remoto: false
+      };
+    }
+
+    if (!updated.vacaciones && !updated.remoto) {
+      const { error } = await sbClient
+        .from('Vacaciones')
+        .delete()
+        .eq('persona', selectedMember)
+        .eq('fecha', dateStr);
+
+      if (error) {
+        console.error('Delete error:', error);
+        setStatus('Error deleting day: ' + error.message, true);
+        return;
+      }
+
+      delete calendarData[key];
+      renderCalendar();
+      setStatus(`${selectedMember} cleared for ${dateStr}`);
+      return;
+    }
+
+    const payload = {
+      persona: updated.persona,
+      fecha: updated.fecha,
+      vacaciones: updated.vacaciones,
+      remoto: updated.remoto,
+      comentario: updated.comentario ?? null
+    };
+
+    const { data, error } = await sbClient
+      .from('Vacaciones')
+      .upsert([payload], { onConflict: 'persona,fecha' })
+      .select();
+
+    if (error) {
+      console.error('Save error:', error);
+      setStatus('Error saving day: ' + error.message, true);
+      return;
+    }
+
+    calendarData[key] = data[0];
+    renderCalendar();
+
+    if (updated.vacaciones) {
+      setStatus(`${selectedMember} marked as Holiday on ${dateStr}`);
+    } else {
+      setStatus(`${selectedMember} marked as Remote on ${dateStr}`);
+    }
+  }
+
+  createLegend();
+  createMemberButtons();
+  renderCalendar();
+  loadData();
+</script>
+
+</body>
+</html>

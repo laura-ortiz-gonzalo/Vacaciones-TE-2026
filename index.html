@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data: https://azure.assets.harvey.ai; connect-src 'none'; webrtc 'block'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Team Holiday, Remote Work &amp; PwC Day Calendar — 2026</title>
+  <title>Team Holiday &amp; Remote Work Calendar — Summer 2026</title>
 
   <style>
     *,
@@ -36,83 +35,13 @@
       font-size: 0.9rem;
     }
 
-    /* Loading overlay */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(240, 244, 248, 0.92);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      gap: 1rem;
-    }
-
-    .loading-overlay.hidden { display: none; }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #2563eb;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text {
-      font-size: 0.95rem;
-      color: #475569;
-      font-weight: 500;
-    }
-
-    /* Toast notifications */
-    .toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 10000;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .toast {
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      animation: slideIn 0.3s ease-out;
-      max-width: 340px;
-    }
-
-    .toast.error {
-      background: #fef2f2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
-    .toast.success {
-      background: #f0fdf4;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
     /* Member selector */
     .controls {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
     }
 
     .member-btn {
@@ -137,97 +66,40 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
-    .member-btn[data-member="Matt"] { color: #2563eb; }
-    .member-btn[data-member="Matt"].active { background: #dbeafe; border-color: #2563eb; }
-
-    .member-btn[data-member="Cecilia"] { color: #9333ea; }
-    .member-btn[data-member="Cecilia"].active { background: #f3e8ff; border-color: #9333ea; }
-
-    .member-btn[data-member="Guillermo"] { color: #059669; }
-    .member-btn[data-member="Guillermo"].active { background: #d1fae5; border-color: #059669; }
-
-    .member-btn[data-member="Laura"] { color: #dc2626; }
-    .member-btn[data-member="Laura"].active { background: #fee2e2; border-color: #dc2626; }
-
-    /* PwC Day toggle */
-    .pwc-toggle-wrap {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 0.75rem;
+    .member-btn[data-member="Matt"] {
+      color: #2563eb;
     }
 
-    .pwc-toggle-btn {
-      padding: 0.5rem 1.4rem;
-      border: 2px solid #d97706;
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #d97706;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
+    .member-btn[data-member="Matt"].active {
+      background: #dbeafe;
+      border-color: #2563eb;
     }
 
-    .pwc-toggle-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+    .member-btn[data-member="Cecilia"] {
+      color: #9333ea;
     }
 
-    .pwc-toggle-btn.active {
-      background: #fef3c7;
-      border-color: #b45309;
-      color: #b45309;
-      border-width: 3px;
-      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
-      transform: translateY(-1px);
+    .member-btn[data-member="Cecilia"].active {
+      background: #f3e8ff;
+      border-color: #9333ea;
     }
 
-    /* Vacation counter */
-    .vacation-counter {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 0.85rem;
-      margin-bottom: 1rem;
-      padding: 0.6rem 1rem;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    .member-btn[data-member="Guillermo"] {
+      color: #059669;
     }
 
-    .counter-label {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #475569;
+    .member-btn[data-member="Guillermo"].active {
+      background: #d1fae5;
+      border-color: #059669;
     }
 
-    .counter-item {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.82rem;
-      font-weight: 500;
+    .member-btn[data-member="Laura"] {
+      color: #dc2626;
     }
 
-    .counter-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .counter-dot.matt { background: #2563eb; }
-    .counter-dot.cecilia { background: #9333ea; }
-    .counter-dot.guillermo { background: #059669; }
-    .counter-dot.laura { background: #dc2626; }
-
-    .counter-num {
-      font-weight: 700;
-      margin-left: 2px;
+    .member-btn[data-member="Laura"].active {
+      background: #fee2e2;
+      border-color: #dc2626;
     }
 
     /* Legend */
@@ -260,23 +132,6 @@
 
     .legend-chip.striped {
       background-size: 6px 6px;
-    }
-
-    .legend-chip.pwc-day-chip {
-      background: #f59e0b;
-      position: relative;
-    }
-
-    .legend-chip.pwc-day-chip::after {
-      content: "P";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      font-weight: 800;
-      color: #fff;
     }
 
     /* Calendar grid */
@@ -344,15 +199,6 @@
       background: transparent;
     }
 
-    .day-cell.pwc-day {
-      background: #fef3c7;
-      border-color: #f59e0b;
-    }
-
-    .day-cell.pwc-day:hover {
-      background: #fde68a;
-    }
-
     .day-num {
       font-size: 0.7rem;
       font-weight: 600;
@@ -360,25 +206,10 @@
       line-height: 1;
       margin-bottom: 1px;
       padding-left: 2px;
-      display: flex;
-      align-items: center;
-      gap: 3px;
     }
 
     .day-cell.weekend .day-num {
       color: #94a3b8;
-    }
-
-    .pwc-badge {
-      display: inline-block;
-      background: #f59e0b;
-      color: #fff;
-      font-size: 0.5rem;
-      font-weight: 800;
-      padding: 0px 3px;
-      border-radius: 2px;
-      line-height: 1.3;
-      letter-spacing: 0.02em;
     }
 
     .chips {
@@ -402,27 +233,63 @@
     }
 
     /* Colors */
-    .color-matt-holiday { background: #2563eb; }
+    .color-matt-holiday {
+      background: #2563eb;
+    }
+
     .color-matt-remote {
-      background: repeating-linear-gradient(45deg, #2563eb, #2563eb 2px, #93c5fd 2px, #93c5fd 4px);
+      background: repeating-linear-gradient(
+        45deg,
+        #2563eb,
+        #2563eb 2px,
+        #93c5fd 2px,
+        #93c5fd 4px
+      );
       background-size: 5px 5px;
     }
 
-    .color-cecilia-holiday { background: #9333ea; }
+    .color-cecilia-holiday {
+      background: #9333ea;
+    }
+
     .color-cecilia-remote {
-      background: repeating-linear-gradient(45deg, #9333ea, #9333ea 2px, #d8b4fe 2px, #d8b4fe 4px);
+      background: repeating-linear-gradient(
+        45deg,
+        #9333ea,
+        #9333ea 2px,
+        #d8b4fe 2px,
+        #d8b4fe 4px
+      );
       background-size: 5px 5px;
     }
 
-    .color-guillermo-holiday { background: #059669; }
+    .color-guillermo-holiday {
+      background: #059669;
+    }
+
     .color-guillermo-remote {
-      background: repeating-linear-gradient(45deg, #059669, #059669 2px, #6ee7b7 2px, #6ee7b7 4px);
+      background: repeating-linear-gradient(
+        45deg,
+        #059669,
+        #059669 2px,
+        #6ee7b7 2px,
+        #6ee7b7 4px
+      );
       background-size: 5px 5px;
     }
 
-    .color-laura-holiday { background: #dc2626; }
+    .color-laura-holiday {
+      background: #dc2626;
+    }
+
     .color-laura-remote {
-      background: repeating-linear-gradient(45deg, #dc2626, #dc2626 2px, #fca5a5 2px, #fca5a5 4px);
+      background: repeating-linear-gradient(
+        45deg,
+        #dc2626,
+        #dc2626 2px,
+        #fca5a5 2px,
+        #fca5a5 4px
+      );
       background-size: 5px 5px;
     }
 
@@ -478,253 +345,59 @@
   </style>
 </head>
 <body>
-
-  <!-- Loading overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <div class="loading-text">Cargando calendario…</div>
-  </div>
-
-  <!-- Toast container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <h1>Team Calendar — 2026</h1>
-  <p class="subtitle">Holiday, Remote Work &amp; PwC Day Planner</p>
+  <h1>Team Calendar — Summer 2026</h1>
+  <p class="subtitle">Holiday &amp; Remote Work Planner</p>
 
   <div class="controls" id="controls"></div>
 
-  <div class="pwc-toggle-wrap">
-    <button class="pwc-toggle-btn" id="pwcToggle">
-      <span>🏢</span> PwC Day Mode
-    </button>
-  </div>
-
-  <p class="instructions" id="instructionsText">
+  <p class="instructions">
     Select your name above, then click dates to cycle:
     unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked
   </p>
-
-  <div class="vacation-counter" id="vacationCounter"></div>
 
   <div class="legend" id="legend"></div>
   <div class="months-grid" id="calendar"></div>
 
   <script>
     (function () {
-      /* ══════════════════════════════════════════
-         SUPABASE CONFIG
-         ══════════════════════════════════════════ */
+      const MEMBERS = ["Matt", "Cecilia", "Guillermo", "Laura"];
+      const STATES = ["none", "holiday", "remote"];
+      const STORAGE_KEY = "teamCalendar2026";
 
-      var SUPABASE_URL = "https://lzjhldscbvxnzalgojrm.supabase.co/rest/v1";
-      var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6amhsZHNjYnZ4bnphbGdvanJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDU2MzUsImV4cCI6MjA5NzI4MTYzNX0.0-tPAHXoFwMcQPtZKvrZdFYbj7xGQVgBgeqtqEddfNg";
-
-      var HEADERS = {
-        "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + SUPABASE_KEY,
-        "Content-Type": "application/json"
-      };
-
-      var HEADERS_UPSERT = {
-        "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + SUPABASE_KEY,
-        "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates"
-      };
-
-      /* ══════════════════════════════════════════
-         APP CONFIG
-         ══════════════════════════════════════════ */
-
-      var MEMBERS = ["Guillermo", "Laura", "Cecilia", "Matt"];
-      var STATES = ["none", "holiday", "remote"];
-
-      var MONTHS = [
-        { name: "July",      year: 2026, month: 6,  days: 31 },
-        { name: "August",    year: 2026, month: 7,  days: 31 },
-        { name: "September", year: 2026, month: 8,  days: 30 },
-        { name: "October",   year: 2026, month: 9,  days: 31 },
-        { name: "November",  year: 2026, month: 10, days: 30 },
-        { name: "December",  year: 2026, month: 11, days: 31 }
+      const MONTHS = [
+        { name: "June", year: 2026, month: 5, days: 30 },
+        { name: "July", year: 2026, month: 6, days: 31 },
+        { name: "August", year: 2026, month: 7, days: 31 },
+        { name: "September", year: 2026, month: 8, days: 30 }
       ];
 
-      var WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-      var activeMember = MEMBERS[0];
-      var pwcDayMode = false;
+      let activeMember = MEMBERS[0];
+      let data = loadData();
 
-      /* In-memory caches — populated from Supabase on load */
-      var data = {};
-      var pwcDays = {};
-
-      /* ══════════════════════════════════════════
-         TOAST NOTIFICATIONS
-         ══════════════════════════════════════════ */
-
-      function showToast(message, type) {
-        var container = document.getElementById("toastContainer");
-        var toast = document.createElement("div");
-        toast.className = "toast " + (type || "error");
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(function () {
-          if (toast.parentNode) toast.parentNode.removeChild(toast);
-        }, 4000);
+      function loadData() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return {};
       }
 
-      /* ══════════════════════════════════════════
-         SUPABASE API (with debug logs)
-         ══════════════════════════════════════════ */
-
-      function apiGet(table, select) {
-        var url = SUPABASE_URL + "/" + table + "?select=" + (select || "*");
-        console.log("[Supabase GET] " + url);
-        return fetch(url, { method: "GET", headers: HEADERS })
-          .then(function (res) {
-            console.log("[Supabase GET " + table + "] status:", res.status);
-            if (!res.ok) {
-              return res.text().then(function (body) {
-                console.error("[Supabase GET " + table + "] ERROR:", body);
-                throw new Error("GET " + table + " failed: " + res.status + " — " + body);
-              });
-            }
-            return res.json();
-          })
-          .then(function (rows) {
-            console.log("[Supabase GET " + table + "] loaded " + rows.length + " rows");
-            if (rows.length > 0) console.log("[Supabase GET " + table + "] sample:", JSON.stringify(rows[0]));
-            return rows;
-          });
+      function saveData() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
       }
-
-      function apiUpsert(table, body) {
-        var url = SUPABASE_URL + "/" + table;
-        console.log("[Supabase UPSERT " + table + "]", JSON.stringify(body));
-        return fetch(url, { method: "POST", headers: HEADERS_UPSERT, body: JSON.stringify(body) })
-          .then(function (res) {
-            console.log("[Supabase UPSERT " + table + "] status:", res.status);
-            if (!res.ok) {
-              return res.text().then(function (errBody) {
-                console.error("[Supabase UPSERT " + table + "] ERROR:", errBody);
-                throw new Error("UPSERT " + table + " failed: " + res.status + " — " + errBody);
-              });
-            }
-            return res;
-          });
-      }
-
-      function apiDelete(table, query) {
-        var url = SUPABASE_URL + "/" + table + "?" + query;
-        console.log("[Supabase DELETE] " + url);
-        return fetch(url, { method: "DELETE", headers: HEADERS })
-          .then(function (res) {
-            console.log("[Supabase DELETE " + table + "] status:", res.status);
-            if (!res.ok) {
-              return res.text().then(function (errBody) {
-                console.error("[Supabase DELETE " + table + "] ERROR:", errBody);
-                throw new Error("DELETE " + table + " failed: " + res.status + " — " + errBody);
-              });
-            }
-            return res;
-          });
-      }
-
-      /* ══════════════════════════════════════════
-         LOAD DATA FROM SUPABASE
-         ══════════════════════════════════════════ */
-
-      function loadAllData() {
-        console.log("[loadAllData] Starting fetch from Supabase…");
-        return Promise.all([
-          apiGet("Vacaciones", "persona,fecha,vacaciones,remoto"),
-          apiGet("PwcDays", "fecha").catch(function (err) {
-            console.warn("[loadAllData] PwcDays table may not exist yet:", err.message);
-            return [];
-          })
-        ]).then(function (results) {
-          var vacRows = results[0];
-          var pwcRows = results[1];
-
-          console.log("[loadAllData] Vacaciones rows:", vacRows.length);
-          console.log("[loadAllData] PwcDays rows:", pwcRows.length);
-
-          /* Build data cache */
-          data = {};
-          for (var i = 0; i < vacRows.length; i++) {
-            var row = vacRows[i];
-            var fecha = row.fecha;
-            var persona = row.persona;
-            if (!data[fecha]) data[fecha] = {};
-            if (row.vacaciones === true) {
-              data[fecha][persona] = "holiday";
-            } else if (row.remoto === true) {
-              data[fecha][persona] = "remote";
-            }
-          }
-
-          /* Build pwcDays cache */
-          pwcDays = {};
-          for (var j = 0; j < pwcRows.length; j++) {
-            pwcDays[pwcRows[j].fecha] = true;
-          }
-
-          /* Debug summary */
-          var dateKeys = Object.keys(data);
-          console.log("[loadAllData] Cache built: " + dateKeys.length + " unique dates");
-          for (var mi = 0; mi < MEMBERS.length; mi++) {
-            var m = MEMBERS[mi];
-            var hCount = 0;
-            for (var di = 0; di < dateKeys.length; di++) {
-              if (data[dateKeys[di]][m] === "holiday") hCount++;
-            }
-            console.log("[loadAllData] " + m + ": " + hCount + " holiday days");
-          }
-          console.log("[loadAllData] PwC Days: " + Object.keys(pwcDays).length);
-        });
-      }
-
-      /* ══════════════════════════════════════════
-         SAVE TO SUPABASE (optimistic local update)
-         ══════════════════════════════════════════ */
-
-      function saveVacacion(dateKey, member, state) {
-        console.log("[saveVacacion] " + member + " @ " + dateKey + " → " + state);
-        if (!data[dateKey]) data[dateKey] = {};
-
-        if (state === "none") {
-          delete data[dateKey][member];
-          if (Object.keys(data[dateKey]).length === 0) delete data[dateKey];
-          return apiDelete("Vacaciones", "persona=eq." + encodeURIComponent(member) + "&fecha=eq." + dateKey)
-            .catch(function (err) { showToast("Error al borrar: " + err.message, "error"); });
-        } else {
-          data[dateKey][member] = state;
-          return apiUpsert("Vacaciones", {
-            persona: member,
-            fecha: dateKey,
-            vacaciones: state === "holiday",
-            remoto: state === "remote"
-          }).catch(function (err) { showToast("Error al guardar: " + err.message, "error"); });
-        }
-      }
-
-      function savePwcDay(dateKey, isActive) {
-        console.log("[savePwcDay] " + dateKey + " → " + (isActive ? "ON" : "OFF"));
-        if (isActive) {
-          pwcDays[dateKey] = true;
-          return apiUpsert("PwcDays", { fecha: dateKey })
-            .catch(function (err) { showToast("Error PwC Day: " + err.message, "error"); });
-        } else {
-          delete pwcDays[dateKey];
-          return apiDelete("PwcDays", "fecha=eq." + dateKey)
-            .catch(function (err) { showToast("Error PwC Day: " + err.message, "error"); });
-        }
-      }
-
-      /* ══════════════════════════════════════════
-         HELPERS
-         ══════════════════════════════════════════ */
 
       function getKey(year, month, day) {
-        return year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+        return (
+          year +
+          "-" +
+          String(month + 1).padStart(2, "0") +
+          "-" +
+          String(day).padStart(2, "0")
+        );
       }
 
       function getState(dateKey, member) {
@@ -732,194 +405,177 @@
         return data[dateKey][member] || "none";
       }
 
-      function cycleState(dateKey, member) {
-        var current = getState(dateKey, member);
-        var idx = STATES.indexOf(current);
-        var next = STATES[(idx + 1) % STATES.length];
-        saveVacacion(dateKey, member, next);
-        return next;
-      }
+      function setState(dateKey, member, state) {
+        if (!data[dateKey]) data[dateKey] = {};
 
-      function togglePwcDay(dateKey) {
-        savePwcDay(dateKey, !pwcDays[dateKey]);
-      }
-
-      function isPwcDay(dateKey) {
-        return !!pwcDays[dateKey];
-      }
-
-      /* ══════════════════════════════════════════
-         VACATION COUNTER
-         ══════════════════════════════════════════ */
-
-      function countHolidays(member) {
-        var count = 0;
-        var keys = Object.keys(data);
-        for (var i = 0; i < keys.length; i++) {
-          if (data[keys[i]] && data[keys[i]][member] === "holiday") count++;
-        }
-        return count;
-      }
-
-      function renderVacationCounter() {
-        var container = document.getElementById("vacationCounter");
-        var html = '<span class="counter-label">\u{1F3D6}️ Días de vacaciones:</span>';
-        for (var i = 0; i < MEMBERS.length; i++) {
-          var m = MEMBERS[i];
-          html +=
-            '<div class="counter-item">' +
-            '<span class="counter-dot ' + m.toLowerCase() + '"></span>' +
-            m + ': <span class="counter-num">' + countHolidays(m) + '</span></div>';
-        }
-        container.innerHTML = html;
-      }
-
-      /* ══════════════════════════════════════════
-         PWC DAY TOGGLE UI
-         ══════════════════════════════════════════ */
-
-      function renderPwcToggle() {
-        var btn = document.getElementById("pwcToggle");
-        var instrText = document.getElementById("instructionsText");
-        if (pwcDayMode) {
-          btn.classList.add("active");
-          instrText.innerHTML = '<strong>PwC Day mode ON:</strong> click any date to toggle it as a PwC Day (applies to the whole team)';
+        if (state === "none") {
+          delete data[dateKey][member];
+          if (Object.keys(data[dateKey]).length === 0) {
+            delete data[dateKey];
+          }
         } else {
-          btn.classList.remove("active");
-          instrText.innerHTML = 'Select your name above, then click dates to cycle: unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked';
+          data[dateKey][member] = state;
         }
+
+        saveData();
       }
 
-      /* ══════════════════════════════════════════
-         CONTROLS
-         ══════════════════════════════════════════ */
+      function cycleState(dateKey, member) {
+        const current = getState(dateKey, member);
+        const idx = STATES.indexOf(current);
+        const next = STATES[(idx + 1) % STATES.length];
+        setState(dateKey, member, next);
+      }
 
       function renderControls() {
-        var container = document.getElementById("controls");
+        const container = document.getElementById("controls");
         container.innerHTML = "";
-        for (var i = 0; i < MEMBERS.length; i++) {
-          (function (m) {
-            var btn = document.createElement("button");
-            btn.className = "member-btn" + (m === activeMember && !pwcDayMode ? " active" : "");
-            btn.dataset.member = m;
-            btn.textContent = m;
-            btn.onclick = function () {
-              if (pwcDayMode) { pwcDayMode = false; renderPwcToggle(); }
-              activeMember = m;
-              renderControls();
-            };
-            container.appendChild(btn);
-          })(MEMBERS[i]);
-        }
+
+        MEMBERS.forEach((m) => {
+          const btn = document.createElement("button");
+          btn.className = "member-btn" + (m === activeMember ? " active" : "");
+          btn.dataset.member = m;
+          btn.textContent = m;
+
+          btn.onclick = () => {
+            activeMember = m;
+            renderControls();
+          };
+
+          container.appendChild(btn);
+        });
       }
 
-      /* ══════════════════════════════════════════
-         LEGEND
-         ══════════════════════════════════════════ */
-
       function renderLegend() {
-        var container = document.getElementById("legend");
-        var html = "";
-        for (var i = 0; i < MEMBERS.length; i++) {
-          var m = MEMBERS[i];
-          var mL = m.toLowerCase();
-          html += '<div class="legend-group"><span class="legend-chip color-' + mL + '-holiday"></span>' + m + ' Holiday</div>';
-          html += '<div class="legend-group"><span class="legend-chip striped color-' + mL + '-remote"></span>' + m + ' Remote</div>';
-        }
-        html += '<div class="legend-group"><span class="legend-chip pwc-day-chip"></span>PwC Day</div>';
+        const container = document.getElementById("legend");
+        let html = "";
+
+        MEMBERS.forEach((m) => {
+          const mLower = m.toLowerCase();
+
+          html +=
+            '<div class="legend-group">' +
+            '<span class="legend-chip color-' +
+            mLower +
+            '-holiday"></span>' +
+            m +
+            " Holiday</div>";
+
+          html +=
+            '<div class="legend-group">' +
+            '<span class="legend-chip striped color-' +
+            mLower +
+            '-remote"></span>' +
+            m +
+            " Remote</div>";
+        });
+
         container.innerHTML = html;
       }
 
-      /* ══════════════════════════════════════════
-         CALENDAR
-         ══════════════════════════════════════════ */
-
       function renderCalendar() {
-        var container = document.getElementById("calendar");
+        const container = document.getElementById("calendar");
         container.innerHTML = "";
 
-        for (var mi = 0; mi < MONTHS.length; mi++) {
-          var mo = MONTHS[mi];
-          var card = document.createElement("div");
+        MONTHS.forEach((mo) => {
+          const card = document.createElement("div");
           card.className = "month-card";
 
-          var html = '<div class="month-title">' + mo.name + " " + mo.year + "</div>";
+          let html = '<div class="month-title">' + mo.name + " " + mo.year + "</div>";
           html += '<div class="weekdays">';
-          for (var wi = 0; wi < WEEKDAYS.length; wi++) html += "<div>" + WEEKDAYS[wi] + "</div>";
+
+          WEEKDAYS.forEach((d) => {
+            html += "<div>" + d + "</div>";
+          });
+
           html += '</div><div class="days-grid">';
 
-          var firstDay = new Date(mo.year, mo.month, 1).getDay();
-          var startOffset = firstDay === 0 ? 6 : firstDay - 1;
+          // JS getDay(): 0=Sun,1=Mon,...6=Sat
+          // Convert to Monday-based start: 0=Mon ... 6=Sun
+          const firstDay = new Date(mo.year, mo.month, 1).getDay();
+          const startOffset = firstDay === 0 ? 6 : firstDay - 1;
 
-          for (var i = 0; i < startOffset; i++) html += '<div class="day-cell empty"></div>';
+          for (let i = 0; i < startOffset; i++) {
+            html += '<div class="day-cell empty"></div>';
+          }
 
-          for (var d = 1; d <= mo.days; d++) {
-            var dateKey = getKey(mo.year, mo.month, d);
-            var dow = (startOffset + d - 1) % 7;
-            var isWeekend = dow >= 5;
-            var isPwc = isPwcDay(dateKey);
+          for (let d = 1; d <= mo.days; d++) {
+            const dateKey = getKey(mo.year, mo.month, d);
+            const dow = (startOffset + d - 1) % 7;
+            const isWeekend = dow >= 5;
 
-            html += '<div class="day-cell' + (isWeekend ? " weekend" : "") + (isPwc ? " pwc-day" : "") + '" data-date="' + dateKey + '">';
-            html += '<span class="day-num">' + d;
-            if (isPwc) html += ' <span class="pwc-badge">PwC</span>';
-            html += '</span>';
+            html +=
+              '<div class="day-cell' +
+              (isWeekend ? " weekend" : "") +
+              '" data-date="' +
+              dateKey +
+              '">';
+
+            html += '<span class="day-num">' + d + "</span>";
             html += '<div class="chips" id="chips-' + dateKey + '"></div>';
-            html += '</div>';
+            html += "</div>";
           }
 
           html += "</div>";
           card.innerHTML = html;
           container.appendChild(card);
-        }
+        });
 
-        var cells = document.querySelectorAll(".day-cell:not(.empty)");
-        for (var ci = 0; ci < cells.length; ci++) {
-          cells[ci].addEventListener("click", function () {
-            var dateKey = this.dataset.date;
-            if (pwcDayMode) {
-              togglePwcDay(dateKey);
-              renderCalendar();
-              renderVacationCounter();
-            } else {
-              cycleState(dateKey, activeMember);
-              renderChips(dateKey);
-              renderVacationCounter();
-            }
+        document.querySelectorAll(".day-cell:not(.empty)").forEach((cell) => {
+          cell.addEventListener("click", function () {
+            const dateKey = this.dataset.date;
+            cycleState(dateKey, activeMember);
+            renderChips(dateKey);
           });
-        }
+        });
 
         renderAllChips();
       }
 
       function renderAllChips() {
-        var keys = Object.keys(data);
-        for (var i = 0; i < keys.length; i++) renderChips(keys[i]);
+        Object.keys(data).forEach((dateKey) => {
+          renderChips(dateKey);
+        });
       }
 
       function renderChips(dateKey) {
-        var container = document.getElementById("chips-" + dateKey);
+        const container = document.getElementById("chips-" + dateKey);
         if (!container) return;
 
-        var html = "";
-        var tooltipParts = [];
+        let html = "";
+        const tooltipParts = [];
 
-        if (isPwcDay(dateKey)) tooltipParts.push("PwC Day");
+        MEMBERS.forEach((m) => {
+          const state = getState(dateKey, m);
 
-        for (var i = 0; i < MEMBERS.length; i++) {
-          var m = MEMBERS[i];
-          var state = getState(dateKey, m);
           if (state !== "none") {
-            var mL = m.toLowerCase();
-            var cls = "chip color-" + mL + "-" + state + (state === "remote" ? " striped" : "");
-            var label = state === "holiday" ? "Holiday" : "Remote";
-            html += '<div class="' + cls + '" title="' + m + ": " + label + '"></div>';
-            tooltipParts.push(m + ": " + label);
+            const mLower = m.toLowerCase();
+            const cls =
+              "chip color-" +
+              mLower +
+              "-" +
+              state +
+              (state === "remote" ? " striped" : "");
+
+            html +=
+              '<div class="' +
+              cls +
+              '" title="' +
+              m +
+              ": " +
+              state +
+              '"></div>';
+
+            tooltipParts.push(
+              m + ": " + (state === "holiday" ? "Holiday" : "Remote")
+            );
           }
-        }
+        });
 
         container.innerHTML = html;
-        var cell = container.parentElement;
-        var tooltip = cell.querySelector(".tooltip");
+
+        const cell = container.parentElement;
+        let tooltip = cell.querySelector(".tooltip");
 
         if (tooltipParts.length > 0) {
           if (!tooltip) {
@@ -933,45 +589,16 @@
         }
       }
 
-      /* ══════════════════════════════════════════
-         PWC TOGGLE BUTTON EVENT
-         ══════════════════════════════════════════ */
-
-      document.getElementById("pwcToggle").addEventListener("click", function () {
-        pwcDayMode = !pwcDayMode;
-        renderPwcToggle();
-        renderControls();
-      });
-
-      /* ══════════════════════════════════════════
-         INIT
-         ══════════════════════════════════════════ */
-
-      console.log("[init] Team Calendar starting…");
-      console.log("[init] Supabase URL:", SUPABASE_URL);
-
-      loadAllData()
-        .then(function () {
-          console.log("[init] Data loaded OK. Rendering…");
-          renderControls();
-          renderPwcToggle();
-          renderLegend();
-          renderCalendar();
-          renderVacationCounter();
-          document.getElementById("loadingOverlay").classList.add("hidden");
-          console.log("[init] Render complete.");
-        })
-        .catch(function (err) {
-          console.error("[init] FATAL ERROR:", err);
-          document.getElementById("loadingOverlay").classList.add("hidden");
-          showToast("Error al cargar datos: " + err.message, "error");
-          renderControls();
-          renderPwcToggle();
-          renderLegend();
-          renderCalendar();
-          renderVacationCounter();
-        });
+      renderControls();
+      renderLegend();
+      renderCalendar();
     })();
   </script>
 </body>
 </html>
+
+
+
+
+
+

@@ -49,9 +49,7 @@
       gap: 1rem;
     }
 
-    .loading-overlay.hidden {
-      display: none;
-    }
+    .loading-overlay.hidden { display: none; }
 
     .spinner {
       width: 40px;
@@ -62,9 +60,7 @@
       animation: spin 0.8s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .loading-text {
       font-size: 0.95rem;
@@ -516,7 +512,7 @@
   <script>
     (function () {
       /* ══════════════════════════════════════════
-         CONFIG
+         SUPABASE CONFIG
          ══════════════════════════════════════════ */
 
       var SUPABASE_URL = "https://lzjhldscbvxnzalgojrm.supabase.co/rest/v1";
@@ -534,6 +530,10 @@
         "Content-Type": "application/json",
         "Prefer": "resolution=merge-duplicates"
       };
+
+      /* ══════════════════════════════════════════
+         APP CONFIG
+         ══════════════════════════════════════════ */
 
       var MEMBERS = ["Guillermo", "Laura", "Cecilia", "Matt"];
       var STATES = ["none", "holiday", "remote"];
@@ -553,8 +553,8 @@
       var pwcDayMode = false;
 
       /* In-memory caches — populated from Supabase on load */
-      var data = {};      /* { "2026-07-15": { "Matt": "holiday", "Laura": "remote" }, … } */
-      var pwcDays = {};   /* { "2026-07-15": true, … } */
+      var data = {};
+      var pwcDays = {};
 
       /* ══════════════════════════════════════════
          TOAST NOTIFICATIONS
@@ -572,68 +572,60 @@
       }
 
       /* ══════════════════════════════════════════
-         SUPABASE API HELPERS (with debug logs)
+         SUPABASE API (with debug logs)
          ══════════════════════════════════════════ */
 
       function apiGet(table, select) {
         var url = SUPABASE_URL + "/" + table + "?select=" + (select || "*");
         console.log("[Supabase GET] " + url);
-        return fetch(url, {
-          method: "GET",
-          headers: HEADERS
-        }).then(function (res) {
-          console.log("[Supabase GET " + table + "] status:", res.status);
-          if (!res.ok) {
-            return res.text().then(function (body) {
-              console.error("[Supabase GET " + table + "] ERROR body:", body);
-              throw new Error("GET " + table + " failed: " + res.status + " — " + body);
-            });
-          }
-          return res.json();
-        }).then(function (rows) {
-          console.log("[Supabase GET " + table + "] loaded " + rows.length + " rows");
-          if (rows.length > 0) {
-            console.log("[Supabase GET " + table + "] first row sample:", JSON.stringify(rows[0]));
-          }
-          return rows;
-        });
+        return fetch(url, { method: "GET", headers: HEADERS })
+          .then(function (res) {
+            console.log("[Supabase GET " + table + "] status:", res.status);
+            if (!res.ok) {
+              return res.text().then(function (body) {
+                console.error("[Supabase GET " + table + "] ERROR:", body);
+                throw new Error("GET " + table + " failed: " + res.status + " — " + body);
+              });
+            }
+            return res.json();
+          })
+          .then(function (rows) {
+            console.log("[Supabase GET " + table + "] loaded " + rows.length + " rows");
+            if (rows.length > 0) console.log("[Supabase GET " + table + "] sample:", JSON.stringify(rows[0]));
+            return rows;
+          });
       }
 
       function apiUpsert(table, body) {
         var url = SUPABASE_URL + "/" + table;
         console.log("[Supabase UPSERT " + table + "]", JSON.stringify(body));
-        return fetch(url, {
-          method: "POST",
-          headers: HEADERS_UPSERT,
-          body: JSON.stringify(body)
-        }).then(function (res) {
-          console.log("[Supabase UPSERT " + table + "] status:", res.status);
-          if (!res.ok) {
-            return res.text().then(function (errBody) {
-              console.error("[Supabase UPSERT " + table + "] ERROR:", errBody);
-              throw new Error("UPSERT " + table + " failed: " + res.status + " — " + errBody);
-            });
-          }
-          return res;
-        });
+        return fetch(url, { method: "POST", headers: HEADERS_UPSERT, body: JSON.stringify(body) })
+          .then(function (res) {
+            console.log("[Supabase UPSERT " + table + "] status:", res.status);
+            if (!res.ok) {
+              return res.text().then(function (errBody) {
+                console.error("[Supabase UPSERT " + table + "] ERROR:", errBody);
+                throw new Error("UPSERT " + table + " failed: " + res.status + " — " + errBody);
+              });
+            }
+            return res;
+          });
       }
 
       function apiDelete(table, query) {
         var url = SUPABASE_URL + "/" + table + "?" + query;
         console.log("[Supabase DELETE] " + url);
-        return fetch(url, {
-          method: "DELETE",
-          headers: HEADERS
-        }).then(function (res) {
-          console.log("[Supabase DELETE " + table + "] status:", res.status);
-          if (!res.ok) {
-            return res.text().then(function (errBody) {
-              console.error("[Supabase DELETE " + table + "] ERROR:", errBody);
-              throw new Error("DELETE " + table + " failed: " + res.status + " — " + errBody);
-            });
-          }
-          return res;
-        });
+        return fetch(url, { method: "DELETE", headers: HEADERS })
+          .then(function (res) {
+            console.log("[Supabase DELETE " + table + "] status:", res.status);
+            if (!res.ok) {
+              return res.text().then(function (errBody) {
+                console.error("[Supabase DELETE " + table + "] ERROR:", errBody);
+                throw new Error("DELETE " + table + " failed: " + res.status + " — " + errBody);
+              });
+            }
+            return res;
+          });
       }
 
       /* ══════════════════════════════════════════
@@ -655,7 +647,7 @@
           console.log("[loadAllData] Vacaciones rows:", vacRows.length);
           console.log("[loadAllData] PwcDays rows:", pwcRows.length);
 
-          /* Build data cache from Vacaciones rows */
+          /* Build data cache */
           data = {};
           for (var i = 0; i < vacRows.length; i++) {
             var row = vacRows[i];
@@ -675,14 +667,9 @@
             pwcDays[pwcRows[j].fecha] = true;
           }
 
-          /* Debug: log what we built */
+          /* Debug summary */
           var dateKeys = Object.keys(data);
-          console.log("[loadAllData] Built cache with " + dateKeys.length + " unique dates");
-          if (dateKeys.length > 0) {
-            console.log("[loadAllData] Sample date entry:", dateKeys[0], JSON.stringify(data[dateKeys[0]]));
-          }
-
-          /* Count holidays per member for debug */
+          console.log("[loadAllData] Cache built: " + dateKeys.length + " unique dates");
           for (var mi = 0; mi < MEMBERS.length; mi++) {
             var m = MEMBERS[mi];
             var hCount = 0;
@@ -691,42 +678,31 @@
             }
             console.log("[loadAllData] " + m + ": " + hCount + " holiday days");
           }
+          console.log("[loadAllData] PwC Days: " + Object.keys(pwcDays).length);
         });
       }
 
       /* ══════════════════════════════════════════
-         SAVE HELPERS (Supabase + local cache)
+         SAVE TO SUPABASE (optimistic local update)
          ══════════════════════════════════════════ */
 
       function saveVacacion(dateKey, member, state) {
         console.log("[saveVacacion] " + member + " @ " + dateKey + " → " + state);
-
-        /* Update local cache first (optimistic) */
         if (!data[dateKey]) data[dateKey] = {};
 
         if (state === "none") {
           delete data[dateKey][member];
-          if (Object.keys(data[dateKey]).length === 0) {
-            delete data[dateKey];
-          }
-          /* DELETE from Supabase */
+          if (Object.keys(data[dateKey]).length === 0) delete data[dateKey];
           return apiDelete("Vacaciones", "persona=eq." + encodeURIComponent(member) + "&fecha=eq." + dateKey)
-            .catch(function (err) {
-              showToast("Error al borrar: " + err.message, "error");
-            });
+            .catch(function (err) { showToast("Error al borrar: " + err.message, "error"); });
         } else {
           data[dateKey][member] = state;
-          /* UPSERT to Supabase */
-          var body = {
+          return apiUpsert("Vacaciones", {
             persona: member,
             fecha: dateKey,
             vacaciones: state === "holiday",
             remoto: state === "remote"
-          };
-          return apiUpsert("Vacaciones", body)
-            .catch(function (err) {
-              showToast("Error al guardar: " + err.message, "error");
-            });
+          }).catch(function (err) { showToast("Error al guardar: " + err.message, "error"); });
         }
       }
 
@@ -735,15 +711,11 @@
         if (isActive) {
           pwcDays[dateKey] = true;
           return apiUpsert("PwcDays", { fecha: dateKey })
-            .catch(function (err) {
-              showToast("Error al guardar PwC Day: " + err.message, "error");
-            });
+            .catch(function (err) { showToast("Error PwC Day: " + err.message, "error"); });
         } else {
           delete pwcDays[dateKey];
           return apiDelete("PwcDays", "fecha=eq." + dateKey)
-            .catch(function (err) {
-              showToast("Error al borrar PwC Day: " + err.message, "error");
-            });
+            .catch(function (err) { showToast("Error PwC Day: " + err.message, "error"); });
         }
       }
 
@@ -752,13 +724,7 @@
          ══════════════════════════════════════════ */
 
       function getKey(year, month, day) {
-        return (
-          year +
-          "-" +
-          String(month + 1).padStart(2, "0") +
-          "-" +
-          String(day).padStart(2, "0")
-        );
+        return year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
       }
 
       function getState(dateKey, member) {
@@ -775,8 +741,7 @@
       }
 
       function togglePwcDay(dateKey) {
-        var isNowActive = !pwcDays[dateKey];
-        savePwcDay(dateKey, isNowActive);
+        savePwcDay(dateKey, !pwcDays[dateKey]);
       }
 
       function isPwcDay(dateKey) {
@@ -791,9 +756,7 @@
         var count = 0;
         var keys = Object.keys(data);
         for (var i = 0; i < keys.length; i++) {
-          if (data[keys[i]] && data[keys[i]][member] === "holiday") {
-            count++;
-          }
+          if (data[keys[i]] && data[keys[i]][member] === "holiday") count++;
         }
         return count;
       }
@@ -801,18 +764,13 @@
       function renderVacationCounter() {
         var container = document.getElementById("vacationCounter");
         var html = '<span class="counter-label">\u{1F3D6}️ Días de vacaciones:</span>';
-
         for (var i = 0; i < MEMBERS.length; i++) {
           var m = MEMBERS[i];
-          var count = countHolidays(m);
-          var mLower = m.toLowerCase();
           html +=
             '<div class="counter-item">' +
-            '<span class="counter-dot ' + mLower + '"></span>' +
-            m + ': <span class="counter-num">' + count + '</span>' +
-            '</div>';
+            '<span class="counter-dot ' + m.toLowerCase() + '"></span>' +
+            m + ': <span class="counter-num">' + countHolidays(m) + '</span></div>';
         }
-
         container.innerHTML = html;
       }
 
@@ -823,15 +781,12 @@
       function renderPwcToggle() {
         var btn = document.getElementById("pwcToggle");
         var instrText = document.getElementById("instructionsText");
-
         if (pwcDayMode) {
           btn.classList.add("active");
-          instrText.innerHTML =
-            '<strong>PwC Day mode ON:</strong> click any date to toggle it as a PwC Day (applies to the whole team)';
+          instrText.innerHTML = '<strong>PwC Day mode ON:</strong> click any date to toggle it as a PwC Day (applies to the whole team)';
         } else {
           btn.classList.remove("active");
-          instrText.innerHTML =
-            'Select your name above, then click dates to cycle: unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked';
+          instrText.innerHTML = 'Select your name above, then click dates to cycle: unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked';
         }
       }
 
@@ -842,23 +797,17 @@
       function renderControls() {
         var container = document.getElementById("controls");
         container.innerHTML = "";
-
         for (var i = 0; i < MEMBERS.length; i++) {
           (function (m) {
             var btn = document.createElement("button");
             btn.className = "member-btn" + (m === activeMember && !pwcDayMode ? " active" : "");
             btn.dataset.member = m;
             btn.textContent = m;
-
             btn.onclick = function () {
-              if (pwcDayMode) {
-                pwcDayMode = false;
-                renderPwcToggle();
-              }
+              if (pwcDayMode) { pwcDayMode = false; renderPwcToggle(); }
               activeMember = m;
               renderControls();
             };
-
             container.appendChild(btn);
           })(MEMBERS[i]);
         }
@@ -871,27 +820,13 @@
       function renderLegend() {
         var container = document.getElementById("legend");
         var html = "";
-
         for (var i = 0; i < MEMBERS.length; i++) {
           var m = MEMBERS[i];
-          var mLower = m.toLowerCase();
-
-          html +=
-            '<div class="legend-group">' +
-            '<span class="legend-chip color-' + mLower + '-holiday"></span>' +
-            m + ' Holiday</div>';
-
-          html +=
-            '<div class="legend-group">' +
-            '<span class="legend-chip striped color-' + mLower + '-remote"></span>' +
-            m + ' Remote</div>';
+          var mL = m.toLowerCase();
+          html += '<div class="legend-group"><span class="legend-chip color-' + mL + '-holiday"></span>' + m + ' Holiday</div>';
+          html += '<div class="legend-group"><span class="legend-chip striped color-' + mL + '-remote"></span>' + m + ' Remote</div>';
         }
-
-        html +=
-          '<div class="legend-group">' +
-          '<span class="legend-chip pwc-day-chip"></span>' +
-          'PwC Day</div>';
-
+        html += '<div class="legend-group"><span class="legend-chip pwc-day-chip"></span>PwC Day</div>';
         container.innerHTML = html;
       }
 
@@ -910,19 +845,13 @@
 
           var html = '<div class="month-title">' + mo.name + " " + mo.year + "</div>";
           html += '<div class="weekdays">';
-
-          for (var wi = 0; wi < WEEKDAYS.length; wi++) {
-            html += "<div>" + WEEKDAYS[wi] + "</div>";
-          }
-
+          for (var wi = 0; wi < WEEKDAYS.length; wi++) html += "<div>" + WEEKDAYS[wi] + "</div>";
           html += '</div><div class="days-grid">';
 
           var firstDay = new Date(mo.year, mo.month, 1).getDay();
           var startOffset = firstDay === 0 ? 6 : firstDay - 1;
 
-          for (var i = 0; i < startOffset; i++) {
-            html += '<div class="day-cell empty"></div>';
-          }
+          for (var i = 0; i < startOffset; i++) html += '<div class="day-cell empty"></div>';
 
           for (var d = 1; d <= mo.days; d++) {
             var dateKey = getKey(mo.year, mo.month, d);
@@ -930,19 +859,12 @@
             var isWeekend = dow >= 5;
             var isPwc = isPwcDay(dateKey);
 
-            html +=
-              '<div class="day-cell' +
-              (isWeekend ? " weekend" : "") +
-              (isPwc ? " pwc-day" : "") +
-              '" data-date="' + dateKey + '">';
-
+            html += '<div class="day-cell' + (isWeekend ? " weekend" : "") + (isPwc ? " pwc-day" : "") + '" data-date="' + dateKey + '">';
             html += '<span class="day-num">' + d;
-            if (isPwc) {
-              html += ' <span class="pwc-badge">PwC</span>';
-            }
-            html += "</span>";
+            if (isPwc) html += ' <span class="pwc-badge">PwC</span>';
+            html += '</span>';
             html += '<div class="chips" id="chips-' + dateKey + '"></div>';
-            html += "</div>";
+            html += '</div>';
           }
 
           html += "</div>";
@@ -954,7 +876,6 @@
         for (var ci = 0; ci < cells.length; ci++) {
           cells[ci].addEventListener("click", function () {
             var dateKey = this.dataset.date;
-
             if (pwcDayMode) {
               togglePwcDay(dateKey);
               renderCalendar();
@@ -972,9 +893,7 @@
 
       function renderAllChips() {
         var keys = Object.keys(data);
-        for (var i = 0; i < keys.length; i++) {
-          renderChips(keys[i]);
-        }
+        for (var i = 0; i < keys.length; i++) renderChips(keys[i]);
       }
 
       function renderChips(dateKey) {
@@ -984,31 +903,21 @@
         var html = "";
         var tooltipParts = [];
 
-        if (isPwcDay(dateKey)) {
-          tooltipParts.push("PwC Day");
-        }
+        if (isPwcDay(dateKey)) tooltipParts.push("PwC Day");
 
         for (var i = 0; i < MEMBERS.length; i++) {
           var m = MEMBERS[i];
           var state = getState(dateKey, m);
-
           if (state !== "none") {
-            var mLower = m.toLowerCase();
-            var cls =
-              "chip color-" + mLower + "-" + state +
-              (state === "remote" ? " striped" : "");
-
-            var stateLabel = state === "holiday" ? "Holiday" : "Remote";
-
-            html +=
-              '<div class="' + cls + '" title="' + m + ": " + stateLabel + '"></div>';
-
-            tooltipParts.push(m + ": " + stateLabel);
+            var mL = m.toLowerCase();
+            var cls = "chip color-" + mL + "-" + state + (state === "remote" ? " striped" : "");
+            var label = state === "holiday" ? "Holiday" : "Remote";
+            html += '<div class="' + cls + '" title="' + m + ": " + label + '"></div>';
+            tooltipParts.push(m + ": " + label);
           }
         }
 
         container.innerHTML = html;
-
         var cell = container.parentElement;
         var tooltip = cell.querySelector(".tooltip");
 
@@ -1025,7 +934,7 @@
       }
 
       /* ══════════════════════════════════════════
-         PWC DAY TOGGLE BUTTON EVENT
+         PWC TOGGLE BUTTON EVENT
          ══════════════════════════════════════════ */
 
       document.getElementById("pwcToggle").addEventListener("click", function () {
@@ -1035,7 +944,7 @@
       });
 
       /* ══════════════════════════════════════════
-         INIT: load from Supabase, then render
+         INIT
          ══════════════════════════════════════════ */
 
       console.log("[init] Team Calendar starting…");
@@ -1043,7 +952,7 @@
 
       loadAllData()
         .then(function () {
-          console.log("[init] Data loaded successfully. Rendering…");
+          console.log("[init] Data loaded OK. Rendering…");
           renderControls();
           renderPwcToggle();
           renderLegend();
@@ -1053,10 +962,9 @@
           console.log("[init] Render complete.");
         })
         .catch(function (err) {
-          console.error("[init] FATAL ERROR loading data:", err);
+          console.error("[init] FATAL ERROR:", err);
           document.getElementById("loadingOverlay").classList.add("hidden");
           showToast("Error al cargar datos: " + err.message, "error");
-          /* Render empty calendar anyway */
           renderControls();
           renderPwcToggle();
           renderLegend();

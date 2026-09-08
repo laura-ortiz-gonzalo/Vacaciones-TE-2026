@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data: https://azure.assets.harvey.ai; connect-src 'none'; webrtc 'block'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Team Holiday & Remote Work Calendar — Summer 2026</title>
+  <title>Team Holiday, Remote Work &amp; PwC Day Calendar — 2026</title>
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+
+    }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #f0f4f8;
       color: #1a202c;
       padding: 1rem;
@@ -19,22 +27,23 @@
     h1 {
       text-align: center;
       margin-bottom: 0.25rem;
-      font-size: 1.9rem;
+      font-size: 1.5rem;
     }
 
     .subtitle {
       text-align: center;
       color: #64748b;
       margin-bottom: 1.25rem;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
+    /* Member selector */
     .controls {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .member-btn {
@@ -50,13 +59,13 @@
 
     .member-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .member-btn.active {
       border-width: 3px;
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     .member-btn[data-member="Matt"] { color: #2563eb; }
@@ -71,29 +80,88 @@
     .member-btn[data-member="Laura"] { color: #dc2626; }
     .member-btn[data-member="Laura"].active { background: #fee2e2; border-color: #dc2626; }
 
-    .mode-selector {
+    /* PwC Day toggle */
+    .pwc-toggle-wrap {
       display: flex;
-      gap: 0.5rem;
       justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
-    .mode-btn {
-      padding: 0.55rem 1rem;
-      border: 2px solid #cbd5e1;
+    .pwc-toggle-btn {
+      padding: 0.5rem 1.4rem;
+      border: 2px solid #d97706;
       border-radius: 8px;
       background: #fff;
       cursor: pointer;
       font-size: 0.9rem;
       font-weight: 600;
+      color: #d97706;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
-    .mode-btn.active {
-      border-color: #0f172a;
-      background: #e2e8f0;
+    .pwc-toggle-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
     }
 
+    .pwc-toggle-btn.active {
+      background: #fef3c7;
+      border-color: #b45309;
+      color: #b45309;
+      border-width: 3px;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+      transform: translateY(-1px);
+    }
+
+    /* Vacation counter */
+    .vacation-counter {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.6rem 1rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .counter-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .counter-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .counter-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .counter-dot.matt { background: #2563eb; }
+    .counter-dot.cecilia { background: #9333ea; }
+    .counter-dot.guillermo { background: #059669; }
+    .counter-dot.laura { background: #dc2626; }
+
+    .counter-num {
+      font-weight: 700;
+      margin-left: 2px;
+    }
+
+    /* Legend */
     .legend {
       display: flex;
       flex-wrap: wrap;
@@ -103,14 +171,14 @@
       padding: 0.75rem 1rem;
       background: #fff;
       border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
     .legend-group {
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
     }
 
     .legend-chip {
@@ -125,14 +193,24 @@
       background-size: 6px 6px;
     }
 
-    .status {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #475569;
-      margin-bottom: 1rem;
-      min-height: 22px;
+    .legend-chip.pwc-day-chip {
+      background: #f59e0b;
+      position: relative;
     }
 
+    .legend-chip.pwc-day-chip::after {
+      content: "P";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Calendar grid */
     .months-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -144,7 +222,7 @@
     .month-card {
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       padding: 1rem;
     }
 
@@ -152,7 +230,7 @@
       text-align: center;
       font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
       color: #334155;
     }
 
@@ -173,7 +251,7 @@
     }
 
     .day-cell {
-      min-height: 54px;
+      min-height: 52px;
       border: 1px solid #e2e8f0;
       border-radius: 6px;
       padding: 2px;
@@ -184,27 +262,60 @@
       flex-direction: column;
     }
 
-    .day-cell:hover { background: #f8fafc; }
-    .day-cell.empty { border: none; cursor: default; }
-    .day-cell.empty:hover { background: transparent; }
+    .day-cell:hover {
+      background: #f8fafc;
+    }
+
+    .day-cell.empty {
+      border: none;
+      cursor: default;
+    }
+
+    .day-cell.empty:hover {
+      background: transparent;
+    }
+
+    .day-cell.pwc-day {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+
+    .day-cell.pwc-day:hover {
+      background: #fde68a;
+    }
 
     .day-num {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 600;
       color: #475569;
       line-height: 1;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
       padding-left: 2px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .day-cell.weekend .day-num {
       color: #94a3b8;
     }
 
+    .pwc-badge {
+      display: inline-block;
+      background: #f59e0b;
+      color: #fff;
+      font-size: 0.5rem;
+      font-weight: 800;
+      padding: 0px 3px;
+      border-radius: 2px;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+    }
+
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 2px;
+      gap: 1px;
       flex: 1;
       align-items: flex-start;
       align-content: flex-start;
@@ -217,8 +328,11 @@
       flex-shrink: 0;
     }
 
-    .chip.striped { background-size: 5px 5px; }
+    .chip.striped {
+      background-size: 5px 5px;
+    }
 
+    /* Colors */
     .color-matt-holiday { background: #2563eb; }
     .color-matt-remote {
       background: repeating-linear-gradient(45deg, #2563eb, #2563eb 2px, #93c5fd 2px, #93c5fd 4px);
@@ -243,299 +357,432 @@
       background-size: 5px 5px;
     }
 
-    @media (max-width: 640px) {
-      .day-cell { min-height: 46px; }
-      .chip { width: 12px; height: 12px; }
+    /* Tooltip */
+    .day-cell .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .day-cell:hover .tooltip {
+      display: block;
+    }
+
+    /* Instructions */
+    .instructions {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .months-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .day-cell {
+        min-height: 44px;
+      }
+
+      .chip {
+        width: 12px;
+        height: 12px;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Team Holiday & Remote Work Calendar — Summer 2026</h1>
-  <div class="subtitle">Click a day to mark holidays or remote work for the selected team member</div>
+  <h1>Team Calendar — 2026</h1>
+  <p class="subtitle">Holiday, Remote Work &amp; PwC Day Planner</p>
 
-  <div class="controls" id="memberControls"></div>
+  <div class="controls" id="controls"></div>
 
+  <div class="pwc-toggle-wrap">
+    <button class="pwc-toggle-btn" id="pwcToggle">
+      <span>🏢</span> PwC Day 
+    </button>
+  </div>
 
-  <div class="status" id="status"></div>
+  <p class="instructions" id="instructionsText">
+    Select your name above, then click dates to cycle:
+    unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked
+  </p>
+
+  <div class="vacation-counter" id="vacationCounter"></div>
+
   <div class="legend" id="legend"></div>
-  <div class="months-grid" id="monthsGrid"></div>
+  <div class="months-grid" id="calendar"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = 'https://lzjhldscbvxnzalgojrm.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_w-uOgIUlY1PiUEvrCN5daA_--zWPxDI';
+  <script>
+    (function () {
+      var MEMBERS = ["Matt", "Cecilia", "Guillermo", "Laura"];
+      var STATES = ["none", "holiday", "remote"];
+      var STORAGE_KEY = "teamCalendar2026";
+      var PWC_STORAGE_KEY = "teamCalendar2026_pwcDays";
 
-  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var MONTHS = [
+        { name: "June", year: 2026, month: 5, days: 30 },
+        { name: "July", year: 2026, month: 6, days: 31 },
+        { name: "August", year: 2026, month: 7, days: 31 },
+        { name: "September", year: 2026, month: 8, days: 30 },
+        { name: "October", year: 2026, month: 9, days: 31 },
+        { name: "November", year: 2026, month: 10, days: 30 },
+        { name: "December", year: 2026, month: 11, days: 31 }
+      ];
 
-  const YEAR = 2026;
-  const members = ['Matt', 'Cecilia', 'Guillermo', 'Laura'];
-  const months = [
-    { name: 'July', monthIndex: 6 },
-    { name: 'August', monthIndex: 7 },
-    { name: 'September', monthIndex: 8 }
-  ];
+      var WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  let selectedMember = 'Matt';
-  let calendarData = {};
+      var activeMember = MEMBERS[0];
+      var pwcDayMode = false;
+      var data = loadData();
+      var pwcDays = loadPwcDays();
 
-  function setStatus(message, isError = false) {
-    const status = document.getElementById('status');
-    status.textContent = message;
-    status.style.color = isError ? '#dc2626' : '#475569';
-  }
+      /* ── Persistence ── */
 
-  function memberToClass(memberName, type) {
-    return `color-${memberName.toLowerCase()}-${type}`;
-  }
-
-  function normalizeRow(row) {
-    return {
-      ...row,
-      vacaciones: !!row.vacaciones && !row.remoto,
-      remoto: !!row.remoto && !row.vacaciones ? true : (!!row.remoto && !row.vacaciones)
-    };
-  }
-
-  function createLegend() {
-    const legend = document.getElementById('legend');
-    legend.innerHTML = '';
-
-    members.forEach(member => {
-      const holiday = document.createElement('div');
-      holiday.className = 'legend-group';
-      holiday.innerHTML = `<span class="legend-chip ${memberToClass(member, 'holiday')}"></span><span>${member} Holiday</span>`;
-      legend.appendChild(holiday);
-
-      const remote = document.createElement('div');
-      remote.className = 'legend-group';
-      remote.innerHTML = `<span class="legend-chip striped ${memberToClass(member, 'remote')}"></span><span>${member} Remote</span>`;
-      legend.appendChild(remote);
-    });
-  }
-
-  function createMemberButtons() {
-    const controls = document.getElementById('memberControls');
-    controls.innerHTML = '';
-
-    members.forEach(member => {
-      const btn = document.createElement('button');
-      btn.className = 'member-btn' + (member === selectedMember ? ' active' : '');
-      btn.dataset.member = member;
-      btn.textContent = member;
-
-      btn.addEventListener('click', () => {
-        selectedMember = member;
-        createMemberButtons();
-        setStatus(`Selected member: ${selectedMember}`);
-      });
-
-      controls.appendChild(btn);
-    });
-  }
-
-  function formatDate(monthIndex, day) {
-    return `${YEAR}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
-
-  function getDayEntries(dateStr) {
-    return Object.values(calendarData).filter(item => item.fecha === dateStr);
-  }
-
-  function renderCalendar() {
-    const monthsGrid = document.getElementById('monthsGrid');
-    monthsGrid.innerHTML = '';
-    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-    months.forEach(({ name, monthIndex }) => {
-      const card = document.createElement('div');
-      card.className = 'month-card';
-
-      const title = document.createElement('div');
-      title.className = 'month-title';
-      title.textContent = name;
-      card.appendChild(title);
-
-      const weekdays = document.createElement('div');
-      weekdays.className = 'weekdays';
-      weekdayNames.forEach(day => {
-        const el = document.createElement('div');
-        el.textContent = day;
-        weekdays.appendChild(el);
-      });
-      card.appendChild(weekdays);
-
-      const daysGrid = document.createElement('div');
-      daysGrid.className = 'days-grid';
-
-      const firstDay = new Date(YEAR, monthIndex, 1);
-      const daysInMonth = new Date(YEAR, monthIndex + 1, 0).getDate();
-      let startOffset = firstDay.getDay();
-      startOffset = startOffset === 0 ? 6 : startOffset - 1;
-
-      for (let i = 0; i < startOffset; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'day-cell empty';
-        daysGrid.appendChild(empty);
+      function loadData() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return {};
       }
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = formatDate(monthIndex, day);
-        const cell = document.createElement('div');
-        cell.className = 'day-cell';
+      function saveData() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
+      }
 
-        const dayNum = document.createElement('div');
-        dayNum.className = 'day-num';
-        dayNum.textContent = day;
-        cell.appendChild(dayNum);
+      function loadPwcDays() {
+        try {
+          var raw = localStorage.getItem(PWC_STORAGE_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return {};
+      }
 
-        const chips = document.createElement('div');
-        chips.className = 'chips';
+      function savePwcDays() {
+        try {
+          localStorage.setItem(PWC_STORAGE_KEY, JSON.stringify(pwcDays));
+        } catch (e) {}
+      }
 
-        const entries = getDayEntries(dateStr);
+      /* ── Helpers ── */
 
-        entries.forEach(entry => {
-          // Nunca pintar ambos a la vez
-          if (entry.vacaciones) {
-            const chip = document.createElement('div');
-            chip.className = `chip ${memberToClass(entry.persona, 'holiday')}`;
-            chips.appendChild(chip);
-          } else if (entry.remoto) {
-            const chip = document.createElement('div');
-            chip.className = `chip striped ${memberToClass(entry.persona, 'remote')}`;
-            chips.appendChild(chip);
+      function getKey(year, month, day) {
+        return (
+          year +
+          "-" +
+          String(month + 1).padStart(2, "0") +
+          "-" +
+          String(day).padStart(2, "0")
+        );
+      }
+
+      function getState(dateKey, member) {
+        if (!data[dateKey]) return "none";
+        return data[dateKey][member] || "none";
+      }
+
+      function setState(dateKey, member, state) {
+        if (!data[dateKey]) data[dateKey] = {};
+
+        if (state === "none") {
+          delete data[dateKey][member];
+          if (Object.keys(data[dateKey]).length === 0) {
+            delete data[dateKey];
           }
-        });
+        } else {
+          data[dateKey][member] = state;
+        }
 
-        cell.appendChild(chips);
-
-        cell.addEventListener('click', async () => {
-          await saveDay(dateStr);
-        });
-
-        daysGrid.appendChild(cell);
+        saveData();
       }
 
-      card.appendChild(daysGrid);
-      monthsGrid.appendChild(card);
-    });
-  }
-
-  async function loadData() {
-    setStatus('Loading calendar from Supabase...');
-
-    const { data, error } = await sbClient
-      .from('Vacaciones')
-      .select('*');
-
-    if (error) {
-      console.error('Load error:', error);
-      setStatus('Error loading data: ' + error.message, true);
-      return;
-    }
-
-    calendarData = {};
-    data.forEach(row => {
-      const key = `${row.persona}__${row.fecha}`;
-
-      // Si viniera una fila rota con ambos true, priorizamos vacaciones
-      calendarData[key] = {
-        ...row,
-        vacaciones: !!row.vacaciones,
-        remoto: row.vacaciones ? false : !!row.remoto
-      };
-    });
-
-    renderCalendar();
-    setStatus('Calendar loaded from Supabase');
-  }
-
-  async function saveDay(dateStr) {
-    const key = `${selectedMember}__${dateStr}`;
-    const current = calendarData[key] || {
-      persona: selectedMember,
-      fecha: dateStr,
-      vacaciones: false,
-      remoto: false,
-      comentario: null
-    };
-
-    let updated;
-
-    // ciclo: vacío -> vacaciones -> remoto -> vacío
-    if (!current.vacaciones && !current.remoto) {
-      updated = {
-        ...current,
-        vacaciones: true,
-        remoto: false
-      };
-    } else if (current.vacaciones) {
-      updated = {
-        ...current,
-        vacaciones: false,
-        remoto: true
-      };
-    } else {
-      updated = {
-        ...current,
-        vacaciones: false,
-        remoto: false
-      };
-    }
-
-    if (!updated.vacaciones && !updated.remoto) {
-      const { error } = await sbClient
-        .from('Vacaciones')
-        .delete()
-        .eq('persona', selectedMember)
-        .eq('fecha', dateStr);
-
-      if (error) {
-        console.error('Delete error:', error);
-        setStatus('Error deleting day: ' + error.message, true);
-        return;
+      function cycleState(dateKey, member) {
+        var current = getState(dateKey, member);
+        var idx = STATES.indexOf(current);
+        var next = STATES[(idx + 1) % STATES.length];
+        setState(dateKey, member, next);
       }
 
-      delete calendarData[key];
+      function togglePwcDay(dateKey) {
+        if (pwcDays[dateKey]) {
+          delete pwcDays[dateKey];
+        } else {
+          pwcDays[dateKey] = true;
+        }
+        savePwcDays();
+      }
+
+      function isPwcDay(dateKey) {
+        return !!pwcDays[dateKey];
+      }
+
+      /* ── Vacation counter ── */
+
+      function countHolidays(member) {
+        var count = 0;
+        var keys = Object.keys(data);
+        for (var i = 0; i < keys.length; i++) {
+          if (data[keys[i]] && data[keys[i]][member] === "holiday") {
+            count++;
+          }
+        }
+        return count;
+      }
+
+      function renderVacationCounter() {
+        var container = document.getElementById("vacationCounter");
+        var html = '<span class="counter-label">\u{1F3D6}️ Vacation days:</span>';
+
+        for (var i = 0; i < MEMBERS.length; i++) {
+          var m = MEMBERS[i];
+          var count = countHolidays(m);
+          var mLower = m.toLowerCase();
+          html +=
+            '<div class="counter-item">' +
+            '<span class="counter-dot ' + mLower + '"></span>' +
+            m + ': <span class="counter-num">' + count + '</span>' +
+            '</div>';
+        }
+
+        container.innerHTML = html;
+      }
+
+      /* ── PwC Day toggle UI ── */
+
+      function renderPwcToggle() {
+        var btn = document.getElementById("pwcToggle");
+        var instrText = document.getElementById("instructionsText");
+
+        if (pwcDayMode) {
+          btn.classList.add("active");
+          instrText.innerHTML =
+            '<strong>PwC Day mode ON:</strong> click any date to toggle it as a PwC Day (applies to the whole team)';
+        } else {
+          btn.classList.remove("active");
+          instrText.innerHTML =
+            'Select your name above, then click dates to cycle: unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked';
+        }
+      }
+
+      /* ── Controls ── */
+
+      function renderControls() {
+        var container = document.getElementById("controls");
+        container.innerHTML = "";
+
+        for (var i = 0; i < MEMBERS.length; i++) {
+          (function (m) {
+            var btn = document.createElement("button");
+            btn.className = "member-btn" + (m === activeMember && !pwcDayMode ? " active" : "");
+            btn.dataset.member = m;
+            btn.textContent = m;
+
+            btn.onclick = function () {
+              if (pwcDayMode) {
+                pwcDayMode = false;
+                renderPwcToggle();
+              }
+              activeMember = m;
+              renderControls();
+            };
+
+            container.appendChild(btn);
+          })(MEMBERS[i]);
+        }
+      }
+
+      /* ── Legend ── */
+
+      function renderLegend() {
+        var container = document.getElementById("legend");
+        var html = "";
+
+        for (var i = 0; i < MEMBERS.length; i++) {
+          var m = MEMBERS[i];
+          var mLower = m.toLowerCase();
+
+          html +=
+            '<div class="legend-group">' +
+            '<span class="legend-chip color-' + mLower + '-holiday"></span>' +
+            m + ' Holiday</div>';
+
+          html +=
+            '<div class="legend-group">' +
+            '<span class="legend-chip striped color-' + mLower + '-remote"></span>' +
+            m + ' Remote</div>';
+        }
+
+        html +=
+          '<div class="legend-group">' +
+          '<span class="legend-chip pwc-day-chip"></span>' +
+          'PwC Day</div>';
+
+        container.innerHTML = html;
+      }
+
+      /* ── Calendar ── */
+
+      function renderCalendar() {
+        var container = document.getElementById("calendar");
+        container.innerHTML = "";
+
+        for (var mi = 0; mi < MONTHS.length; mi++) {
+          var mo = MONTHS[mi];
+          var card = document.createElement("div");
+          card.className = "month-card";
+
+          var html = '<div class="month-title">' + mo.name + " " + mo.year + "</div>";
+          html += '<div class="weekdays">';
+
+          for (var wi = 0; wi < WEEKDAYS.length; wi++) {
+            html += "<div>" + WEEKDAYS[wi] + "</div>";
+          }
+
+          html += '</div><div class="days-grid">';
+
+          var firstDay = new Date(mo.year, mo.month, 1).getDay();
+          var startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+          for (var i = 0; i < startOffset; i++) {
+            html += '<div class="day-cell empty"></div>';
+          }
+
+          for (var d = 1; d <= mo.days; d++) {
+            var dateKey = getKey(mo.year, mo.month, d);
+            var dow = (startOffset + d - 1) % 7;
+            var isWeekend = dow >= 5;
+            var isPwc = isPwcDay(dateKey);
+
+            html +=
+              '<div class="day-cell' +
+              (isWeekend ? " weekend" : "") +
+              (isPwc ? " pwc-day" : "") +
+              '" data-date="' + dateKey + '">';
+
+            html += '<span class="day-num">' + d;
+            if (isPwc) {
+              html += ' <span class="pwc-badge">PwC</span>';
+            }
+            html += "</span>";
+            html += '<div class="chips" id="chips-' + dateKey + '"></div>';
+            html += "</div>";
+          }
+
+          html += "</div>";
+          card.innerHTML = html;
+          container.appendChild(card);
+        }
+
+        var cells = document.querySelectorAll(".day-cell:not(.empty)");
+        for (var ci = 0; ci < cells.length; ci++) {
+          cells[ci].addEventListener("click", function () {
+            var dateKey = this.dataset.date;
+
+            if (pwcDayMode) {
+              togglePwcDay(dateKey);
+              renderCalendar();
+              renderVacationCounter();
+            } else {
+              cycleState(dateKey, activeMember);
+              renderChips(dateKey);
+              renderVacationCounter();
+            }
+          });
+        }
+
+        renderAllChips();
+      }
+
+      function renderAllChips() {
+        var keys = Object.keys(data);
+        for (var i = 0; i < keys.length; i++) {
+          renderChips(keys[i]);
+        }
+      }
+
+      function renderChips(dateKey) {
+        var container = document.getElementById("chips-" + dateKey);
+        if (!container) return;
+
+        var html = "";
+        var tooltipParts = [];
+
+        if (isPwcDay(dateKey)) {
+          tooltipParts.push("PwC Day");
+        }
+
+        for (var i = 0; i < MEMBERS.length; i++) {
+          var m = MEMBERS[i];
+          var state = getState(dateKey, m);
+
+          if (state !== "none") {
+            var mLower = m.toLowerCase();
+            var cls =
+              "chip color-" + mLower + "-" + state +
+              (state === "remote" ? " striped" : "");
+
+            var stateLabel = state === "holiday" ? "Holiday" : "Remote";
+
+            html +=
+              '<div class="' + cls + '" title="' + m + ": " + stateLabel + '"></div>';
+
+            tooltipParts.push(m + ": " + stateLabel);
+          }
+        }
+
+        container.innerHTML = html;
+
+        var cell = container.parentElement;
+        var tooltip = cell.querySelector(".tooltip");
+
+        if (tooltipParts.length > 0) {
+          if (!tooltip) {
+            tooltip = document.createElement("div");
+            tooltip.className = "tooltip";
+            cell.appendChild(tooltip);
+          }
+          tooltip.textContent = tooltipParts.join(" | ");
+        } else if (tooltip) {
+          tooltip.remove();
+        }
+      }
+
+      /* ── PwC Day toggle button event ── */
+
+      document.getElementById("pwcToggle").addEventListener("click", function () {
+        pwcDayMode = !pwcDayMode;
+        renderPwcToggle();
+        renderControls();
+      });
+
+      /* ── Init ── */
+
+      renderControls();
+      renderPwcToggle();
+      renderLegend();
       renderCalendar();
-      setStatus(`${selectedMember} cleared for ${dateStr}`);
-      return;
-    }
-
-    const payload = {
-      persona: updated.persona,
-      fecha: updated.fecha,
-      vacaciones: updated.vacaciones,
-      remoto: updated.remoto,
-      comentario: updated.comentario ?? null
-    };
-
-    const { data, error } = await sbClient
-      .from('Vacaciones')
-      .upsert([payload], { onConflict: 'persona,fecha' })
-      .select();
-
-    if (error) {
-      console.error('Save error:', error);
-      setStatus('Error saving day: ' + error.message, true);
-      return;
-    }
-
-    calendarData[key] = data[0];
-    renderCalendar();
-
-    if (updated.vacaciones) {
-      setStatus(`${selectedMember} marked as Holiday on ${dateStr}`);
-    } else {
-      setStatus(`${selectedMember} marked as Remote on ${dateStr}`);
-    }
-  }
-
-  createLegend();
-  createMemberButtons();
-  renderCalendar();
-  loadData();
-</script>
-
+      renderVacationCounter();
+    })();
+  </script>
 </body>
 </html>

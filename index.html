@@ -102,15 +102,6 @@
       border-color: #dc2626;
     }
 
-    .member-btn[data-member="PwC day"] {
-      color: #ea580c;
-    }
-
-    .member-btn[data-member="PwC day"].active {
-      background: #fff7ed;
-      border-color: #ea580c;
-    }
-
     /* Legend */
     .legend {
       display: flex;
@@ -208,26 +199,6 @@
       background: transparent;
     }
 
-    .day-cell.weekend {
-      background: #f0f0f0;
-    }
-
-    .day-cell.weekend:hover {
-      background: #e8e8e8;
-    }
-
-    .day-cell.holiday {
-      background: #ffe0e0;
-    }
-
-    .day-cell.holiday:hover {
-      background: #ffd0d0;
-    }
-
-    .day-cell.holiday.weekend {
-      background: #f5d5d5;
-    }
-
     .day-num {
       font-size: 0.7rem;
       font-weight: 600;
@@ -322,10 +293,6 @@
       background-size: 5px 5px;
     }
 
-    .color-pwc-day-holiday {
-      background: #ea580c;
-    }
-
     /* Tooltip */
     .day-cell .tooltip {
       display: none;
@@ -356,18 +323,6 @@
       font-style: italic;
     }
 
-    /* Error banner */
-    .error-banner {
-      display: none;
-      text-align: center;
-      padding: 0.5rem 1rem;
-      margin-bottom: 1rem;
-      background: #fee2e2;
-      color: #991b1b;
-      border-radius: 8px;
-      font-size: 0.85rem;
-    }
-
     /* Responsive */
     @media (max-width: 700px) {
       .months-grid {
@@ -390,123 +345,51 @@
   </style>
 </head>
 <body>
-  <h1>Team Calendar &mdash; 2026</h1>
+  <h1>Team Calendar — Summer 2026</h1>
   <p class="subtitle">Holiday &amp; Remote Work Planner</p>
 
   <div class="controls" id="controls"></div>
 
   <p class="instructions">
     Select your name above, then click dates to cycle:
-    unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked.
-    PwC day toggles on/off only.
+    unmarked &rarr; Holiday &rarr; Remote Work &rarr; unmarked
   </p>
 
-  <div class="error-banner" id="errorBanner"></div>
   <div class="legend" id="legend"></div>
   <div class="months-grid" id="calendar"></div>
 
   <script>
-    (async function () {
-      const SUPABASE_URL = 'https://lzjhldscbvxnzalgojrm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6amhsZHNjYnZ4bnphbGdvanJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDU2MzUsImV4cCI6MjA5NzI4MTYzNX0.0-tPAHXoFwMcQPtZKvrZdFYbj7xGQVgBgeqtqEddfNg';
-
-      let sb = null;
-      try {
-        if (window.supabase && window.supabase.createClient) {
-          sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-      } catch (e) { /* CDN not loaded */ }
-
-      const TABLE = 'Vacaciones';
-
-      const MEMBERS = ["Matt", "Cecilia", "Guillermo", "Laura", "PwC day"];
+    (function () {
+      const MEMBERS = ["Matt", "Cecilia", "Guillermo", "Laura"];
       const STATES = ["none", "holiday", "remote"];
-
-      // CSS-safe slug mapping for member names
-      const MEMBER_SLUG = {
-        "Matt": "matt",
-        "Cecilia": "cecilia",
-        "Guillermo": "guillermo",
-        "Laura": "laura",
-        "PwC day": "pwc-day"
-      };
+      const STORAGE_KEY = "teamCalendar2026";
 
       const MONTHS = [
         { name: "June", year: 2026, month: 5, days: 30 },
         { name: "July", year: 2026, month: 6, days: 31 },
         { name: "August", year: 2026, month: 7, days: 31 },
-        { name: "September", year: 2026, month: 8, days: 30 },
-        { name: "October", year: 2026, month: 9, days: 31 },
-        { name: "November", year: 2026, month: 10, days: 30 },
-        { name: "December", year: 2026, month: 11, days: 31 }
+        { name: "September", year: 2026, month: 8, days: 30 }
       ];
 
       const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-      // Spanish public holidays (Jun-Dec 2026)
-      const HOLIDAYS = new Set([
-        "2026-08-15",
-        "2026-10-12",
-        "2026-11-01",
-        "2026-12-06",
-        "2026-12-08",
-        "2026-12-25"
-      ]);
-
       let activeMember = MEMBERS[0];
-      let data = {};
+      let data = loadData();
 
-      // ---- Supabase helpers ----
-      function showError(msg) {
-        const el = document.getElementById("errorBanner");
-        el.textContent = msg;
-        el.style.display = "block";
-        setTimeout(() => { el.style.display = "none"; }, 5000);
-      }
-
-      async function fetchAll() {
-        if (!sb) { showError("Supabase not configured. Replace credentials in the source."); return; }
+      function loadData() {
         try {
-          const { data: rows, error } = await sb.from(TABLE).select("*");
-          if (error) throw error;
-          data = {};
-          (rows || []).forEach((row) => {
-            const dk = row.fecha;
-            if (!data[dk]) data[dk] = {};
-            if (row.vacaciones) {
-              data[dk][row.persona] = "holiday";
-            } else if (row.remoto) {
-              data[dk][row.persona] = "remote";
-            }
-          });
-          renderAllChips();
-        } catch (err) {
-          showError("Error loading: " + (err.message || err));
-        }
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return {};
       }
 
-      async function syncToSupabase(dateKey, member, state) {
-        if (!sb) { showError("Supabase not configured."); return; }
+      function saveData() {
         try {
-          if (state === "none") {
-            const { error } = await sb.from(TABLE).delete().eq("persona", member).eq("fecha", dateKey);
-            if (error) throw error;
-          } else {
-            const payload = {
-              persona: member,
-              fecha: dateKey,
-              vacaciones: state === "holiday",
-              remoto: state === "remote"
-            };
-            const { error } = await sb.from(TABLE).upsert(payload, { onConflict: "persona,fecha" });
-            if (error) throw error;
-          }
-        } catch (err) {
-          showError("Error saving: " + (err.message || err));
-        }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {}
       }
 
-      // ---- data helpers (same structure as original) ----
       function getKey(year, month, day) {
         return (
           year +
@@ -534,19 +417,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
           data[dateKey][member] = state;
         }
 
-        syncToSupabase(dateKey, member, state);
+        saveData();
       }
 
       function cycleState(dateKey, member) {
         const current = getState(dateKey, member);
-        if (member === "PwC day") {
-          // Only 2 states: none <-> holiday
-          setState(dateKey, member, current === "none" ? "holiday" : "none");
-        } else {
-          const idx = STATES.indexOf(current);
-          const next = STATES[(idx + 1) % STATES.length];
-          setState(dateKey, member, next);
-        }
+        const idx = STATES.indexOf(current);
+        const next = STATES[(idx + 1) % STATES.length];
+        setState(dateKey, member, next);
       }
 
       function renderControls() {
@@ -573,31 +451,24 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
         let html = "";
 
         MEMBERS.forEach((m) => {
-          const slug = MEMBER_SLUG[m];
+          const mLower = m.toLowerCase();
 
           html +=
             '<div class="legend-group">' +
             '<span class="legend-chip color-' +
-            slug +
+            mLower +
             '-holiday"></span>' +
             m +
-            (m === "PwC day" ? "" : " Holiday") +
-            "</div>";
+            " Holiday</div>";
 
-          if (m !== "PwC day") {
-            html +=
-              '<div class="legend-group">' +
-              '<span class="legend-chip striped color-' +
-              slug +
-              '-remote"></span>' +
-              m +
-              " Remote</div>";
-          }
+          html +=
+            '<div class="legend-group">' +
+            '<span class="legend-chip striped color-' +
+            mLower +
+            '-remote"></span>' +
+            m +
+            " Remote</div>";
         });
-
-        // Weekend & Holiday legend
-        html += '<div class="legend-group"><span class="legend-chip" style="background:#f0f0f0;border:1px solid #ccc"></span>Weekend</div>';
-        html += '<div class="legend-group"><span class="legend-chip" style="background:#ffe0e0;border:1px solid #f5c6c6"></span>Public Holiday</div>';
 
         container.innerHTML = html;
       }
@@ -632,14 +503,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
             const dateKey = getKey(mo.year, mo.month, d);
             const dow = (startOffset + d - 1) % 7;
             const isWeekend = dow >= 5;
-            const isHoliday = HOLIDAYS.has(dateKey);
-
-            let cls = "day-cell";
-            if (isWeekend) cls += " weekend";
-            if (isHoliday) cls += " holiday";
 
             html +=
-              '<div class="' + cls +
+              '<div class="day-cell' +
+              (isWeekend ? " weekend" : "") +
               '" data-date="' +
               dateKey +
               '">';
@@ -666,7 +533,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       }
 
       function renderAllChips() {
-        // Render chips for all dates that have data
         Object.keys(data).forEach((dateKey) => {
           renderChips(dateKey);
         });
@@ -683,10 +549,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
           const state = getState(dateKey, m);
 
           if (state !== "none") {
-            const slug = MEMBER_SLUG[m];
+            const mLower = m.toLowerCase();
             const cls =
               "chip color-" +
-              slug +
+              mLower +
               "-" +
               state +
               (state === "remote" ? " striped" : "");
@@ -700,13 +566,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
               state +
               '"></div>';
 
-            if (m === "PwC day") {
-              tooltipParts.push("PwC day");
-            } else {
-              tooltipParts.push(
-                m + ": " + (state === "holiday" ? "Holiday" : "Remote")
-              );
-            }
+            tooltipParts.push(
+              m + ": " + (state === "holiday" ? "Holiday" : "Remote")
+            );
           }
         });
 
@@ -730,8 +592,13 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
       renderControls();
       renderLegend();
       renderCalendar();
-      await fetchAll();
     })();
   </script>
 </body>
 </html>
+
+
+
+
+
+

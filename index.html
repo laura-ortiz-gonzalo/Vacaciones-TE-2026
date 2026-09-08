@@ -515,9 +515,11 @@
 
   <script>
     (function () {
-      /* ── Config ── */
+      /* ══════════════════════════════════════════
+         CONFIG
+         ══════════════════════════════════════════ */
 
-      var SUPABASE_URL = "https://lzjhldscbvxnzalgojrm.supabase.co";
+      var SUPABASE_URL = "https://lzjhldscbvxnzalgojrm.supabase.co/rest/v1";
       var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6amhsZHNjYnZ4bnphbGdvanJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDU2MzUsImV4cCI6MjA5NzI4MTYzNX0.0-tPAHXoFwMcQPtZKvrZdFYbj7xGQVgBgeqtqEddfNg";
 
       var HEADERS = {
@@ -533,17 +535,16 @@
         "Prefer": "resolution=merge-duplicates"
       };
 
-      var MEMBERS = ["Matt", "Cecilia", "Guillermo", "Laura"];
+      var MEMBERS = ["Guillermo", "Laura", "Cecilia", "Matt"];
       var STATES = ["none", "holiday", "remote"];
 
       var MONTHS = [
-        { name: "June", year: 2026, month: 5, days: 30 },
-        { name: "July", year: 2026, month: 6, days: 31 },
-        { name: "August", year: 2026, month: 7, days: 31 },
-        { name: "September", year: 2026, month: 8, days: 30 },
-        { name: "October", year: 2026, month: 9, days: 31 },
-        { name: "November", year: 2026, month: 10, days: 30 },
-        { name: "December", year: 2026, month: 11, days: 31 }
+        { name: "July",      year: 2026, month: 6,  days: 31 },
+        { name: "August",    year: 2026, month: 7,  days: 31 },
+        { name: "September", year: 2026, month: 8,  days: 30 },
+        { name: "October",   year: 2026, month: 9,  days: 31 },
+        { name: "November",  year: 2026, month: 10, days: 30 },
+        { name: "December",  year: 2026, month: 11, days: 31 }
       ];
 
       var WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -552,10 +553,12 @@
       var pwcDayMode = false;
 
       /* In-memory caches — populated from Supabase on load */
-      var data = {};      /* { "2026-07-15": { "Matt": "holiday", "Laura": "remote" }, ... } */
-      var pwcDays = {};   /* { "2026-07-15": true, ... } */
+      var data = {};      /* { "2026-07-15": { "Matt": "holiday", "Laura": "remote" }, … } */
+      var pwcDays = {};   /* { "2026-07-15": true, … } */
 
-      /* ── Toast notifications ── */
+      /* ══════════════════════════════════════════
+         TOAST NOTIFICATIONS
+         ══════════════════════════════════════════ */
 
       function showToast(message, type) {
         var container = document.getElementById("toastContainer");
@@ -568,48 +571,89 @@
         }, 4000);
       }
 
-      /* ── Supabase API helpers ── */
+      /* ══════════════════════════════════════════
+         SUPABASE API HELPERS (with debug logs)
+         ══════════════════════════════════════════ */
 
-      function apiGet(table) {
-        return fetch(SUPABASE_URL + "/rest/v1/" + table + "?select=*", {
+      function apiGet(table, select) {
+        var url = SUPABASE_URL + "/" + table + "?select=" + (select || "*");
+        console.log("[Supabase GET] " + url);
+        return fetch(url, {
           method: "GET",
           headers: HEADERS
         }).then(function (res) {
-          if (!res.ok) throw new Error("GET " + table + " failed: " + res.status);
+          console.log("[Supabase GET " + table + "] status:", res.status);
+          if (!res.ok) {
+            return res.text().then(function (body) {
+              console.error("[Supabase GET " + table + "] ERROR body:", body);
+              throw new Error("GET " + table + " failed: " + res.status + " — " + body);
+            });
+          }
           return res.json();
+        }).then(function (rows) {
+          console.log("[Supabase GET " + table + "] loaded " + rows.length + " rows");
+          if (rows.length > 0) {
+            console.log("[Supabase GET " + table + "] first row sample:", JSON.stringify(rows[0]));
+          }
+          return rows;
         });
       }
 
       function apiUpsert(table, body) {
-        return fetch(SUPABASE_URL + "/rest/v1/" + table, {
+        var url = SUPABASE_URL + "/" + table;
+        console.log("[Supabase UPSERT " + table + "]", JSON.stringify(body));
+        return fetch(url, {
           method: "POST",
           headers: HEADERS_UPSERT,
           body: JSON.stringify(body)
         }).then(function (res) {
-          if (!res.ok) throw new Error("UPSERT " + table + " failed: " + res.status);
+          console.log("[Supabase UPSERT " + table + "] status:", res.status);
+          if (!res.ok) {
+            return res.text().then(function (errBody) {
+              console.error("[Supabase UPSERT " + table + "] ERROR:", errBody);
+              throw new Error("UPSERT " + table + " failed: " + res.status + " — " + errBody);
+            });
+          }
           return res;
         });
       }
 
       function apiDelete(table, query) {
-        return fetch(SUPABASE_URL + "/rest/v1/" + table + "?" + query, {
+        var url = SUPABASE_URL + "/" + table + "?" + query;
+        console.log("[Supabase DELETE] " + url);
+        return fetch(url, {
           method: "DELETE",
           headers: HEADERS
         }).then(function (res) {
-          if (!res.ok) throw new Error("DELETE " + table + " failed: " + res.status);
+          console.log("[Supabase DELETE " + table + "] status:", res.status);
+          if (!res.ok) {
+            return res.text().then(function (errBody) {
+              console.error("[Supabase DELETE " + table + "] ERROR:", errBody);
+              throw new Error("DELETE " + table + " failed: " + res.status + " — " + errBody);
+            });
+          }
           return res;
         });
       }
 
-      /* ── Load data from Supabase ── */
+      /* ══════════════════════════════════════════
+         LOAD DATA FROM SUPABASE
+         ══════════════════════════════════════════ */
 
       function loadAllData() {
+        console.log("[loadAllData] Starting fetch from Supabase…");
         return Promise.all([
-          apiGet("Vacaciones"),
-          apiGet("PwcDays")
+          apiGet("Vacaciones", "persona,fecha,vacaciones,remoto"),
+          apiGet("PwcDays", "fecha").catch(function (err) {
+            console.warn("[loadAllData] PwcDays table may not exist yet:", err.message);
+            return [];
+          })
         ]).then(function (results) {
           var vacRows = results[0];
           var pwcRows = results[1];
+
+          console.log("[loadAllData] Vacaciones rows:", vacRows.length);
+          console.log("[loadAllData] PwcDays rows:", pwcRows.length);
 
           /* Build data cache from Vacaciones rows */
           data = {};
@@ -618,9 +662,9 @@
             var fecha = row.fecha;
             var persona = row.persona;
             if (!data[fecha]) data[fecha] = {};
-            if (row.vacaciones) {
+            if (row.vacaciones === true) {
               data[fecha][persona] = "holiday";
-            } else if (row.remoto) {
+            } else if (row.remoto === true) {
               data[fecha][persona] = "remote";
             }
           }
@@ -630,12 +674,33 @@
           for (var j = 0; j < pwcRows.length; j++) {
             pwcDays[pwcRows[j].fecha] = true;
           }
+
+          /* Debug: log what we built */
+          var dateKeys = Object.keys(data);
+          console.log("[loadAllData] Built cache with " + dateKeys.length + " unique dates");
+          if (dateKeys.length > 0) {
+            console.log("[loadAllData] Sample date entry:", dateKeys[0], JSON.stringify(data[dateKeys[0]]));
+          }
+
+          /* Count holidays per member for debug */
+          for (var mi = 0; mi < MEMBERS.length; mi++) {
+            var m = MEMBERS[mi];
+            var hCount = 0;
+            for (var di = 0; di < dateKeys.length; di++) {
+              if (data[dateKeys[di]][m] === "holiday") hCount++;
+            }
+            console.log("[loadAllData] " + m + ": " + hCount + " holiday days");
+          }
         });
       }
 
-      /* ── Save helpers (Supabase + local cache) ── */
+      /* ══════════════════════════════════════════
+         SAVE HELPERS (Supabase + local cache)
+         ══════════════════════════════════════════ */
 
       function saveVacacion(dateKey, member, state) {
+        console.log("[saveVacacion] " + member + " @ " + dateKey + " → " + state);
+
         /* Update local cache first (optimistic) */
         if (!data[dateKey]) data[dateKey] = {};
 
@@ -666,6 +731,7 @@
       }
 
       function savePwcDay(dateKey, isActive) {
+        console.log("[savePwcDay] " + dateKey + " → " + (isActive ? "ON" : "OFF"));
         if (isActive) {
           pwcDays[dateKey] = true;
           return apiUpsert("PwcDays", { fecha: dateKey })
@@ -681,7 +747,9 @@
         }
       }
 
-      /* ── Helpers ── */
+      /* ══════════════════════════════════════════
+         HELPERS
+         ══════════════════════════════════════════ */
 
       function getKey(year, month, day) {
         return (
@@ -715,7 +783,9 @@
         return !!pwcDays[dateKey];
       }
 
-      /* ── Vacation counter ── */
+      /* ══════════════════════════════════════════
+         VACATION COUNTER
+         ══════════════════════════════════════════ */
 
       function countHolidays(member) {
         var count = 0;
@@ -746,7 +816,9 @@
         container.innerHTML = html;
       }
 
-      /* ── PwC Day toggle UI ── */
+      /* ══════════════════════════════════════════
+         PWC DAY TOGGLE UI
+         ══════════════════════════════════════════ */
 
       function renderPwcToggle() {
         var btn = document.getElementById("pwcToggle");
@@ -763,7 +835,9 @@
         }
       }
 
-      /* ── Controls ── */
+      /* ══════════════════════════════════════════
+         CONTROLS
+         ══════════════════════════════════════════ */
 
       function renderControls() {
         var container = document.getElementById("controls");
@@ -790,7 +864,9 @@
         }
       }
 
-      /* ── Legend ── */
+      /* ══════════════════════════════════════════
+         LEGEND
+         ══════════════════════════════════════════ */
 
       function renderLegend() {
         var container = document.getElementById("legend");
@@ -819,7 +895,9 @@
         container.innerHTML = html;
       }
 
-      /* ── Calendar ── */
+      /* ══════════════════════════════════════════
+         CALENDAR
+         ══════════════════════════════════════════ */
 
       function renderCalendar() {
         var container = document.getElementById("calendar");
@@ -946,7 +1024,9 @@
         }
       }
 
-      /* ── PwC Day toggle button event ── */
+      /* ══════════════════════════════════════════
+         PWC DAY TOGGLE BUTTON EVENT
+         ══════════════════════════════════════════ */
 
       document.getElementById("pwcToggle").addEventListener("click", function () {
         pwcDayMode = !pwcDayMode;
@@ -954,18 +1034,26 @@
         renderControls();
       });
 
-      /* ── Init: load from Supabase, then render ── */
+      /* ══════════════════════════════════════════
+         INIT: load from Supabase, then render
+         ══════════════════════════════════════════ */
+
+      console.log("[init] Team Calendar starting…");
+      console.log("[init] Supabase URL:", SUPABASE_URL);
 
       loadAllData()
         .then(function () {
+          console.log("[init] Data loaded successfully. Rendering…");
           renderControls();
           renderPwcToggle();
           renderLegend();
           renderCalendar();
           renderVacationCounter();
           document.getElementById("loadingOverlay").classList.add("hidden");
+          console.log("[init] Render complete.");
         })
         .catch(function (err) {
+          console.error("[init] FATAL ERROR loading data:", err);
           document.getElementById("loadingOverlay").classList.add("hidden");
           showToast("Error al cargar datos: " + err.message, "error");
           /* Render empty calendar anyway */
